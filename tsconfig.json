@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",              // Versión moderna de JavaScript generada
+    "module": "nodenext",            // Modo de módulos compatible con ESM (Node 20+)
+    "moduleResolution": "nodenext",  // Cómo TypeScript resuelve imports/export
+
+    "resolvePackageJsonExports": true,   // Usa los "exports" de package.json para resolver módulos
+    "esModuleInterop": true,             // Permite importar módulos CommonJS (como import express from 'express')
+    "allowSyntheticDefaultImports": true, // Evita errores con default imports
+
+    "emitDecoratorMetadata": true,       // Necesario para que funcionen los decoradores (NestJS)
+    "experimentalDecorators": true,      // Habilita decoradores en clases y propiedades
+
+    "isolatedModules": true,             // Compila cada archivo de forma independiente
+    "declaration": true,                 // Genera archivos .d.ts (tipos)
+    "removeComments": true,              // Elimina comentarios del código compilado
+    "outDir": "./dist",                  // Carpeta donde se guarda el código compilado
+    "baseUrl": "./",                     // Base para imports relativos
+    "incremental": true,                 // Compilaciones más rápidas
+    "skipLibCheck": true,                // Ignora verificación de tipos de dependencias externas
+
+    "strict": true,                      // Activa modo estricto (recomendado)
+    "strictNullChecks": true,            // Evita asignar null/undefined donde no se debe
+    "strictPropertyInitialization": false, // Permite inicializar propiedades en el constructor
+
+    "forceConsistentCasingInFileNames": true, // Evita conflictos por mayúsculas/minúsculas
+    "types": ["node", "aws-lambda"],          // Tipos globales disponibles (Node.js y AWS Lambda)
+    "noImplicitAny": true,                    // Obliga a declarar tipos (sin `any`)
+    "noFallthroughCasesInSwitch": true,       // Previene errores en switches
+    "strictBindCallApply": true               // Verifica correctamente los métodos `bind`, `call`, `apply`
+  },
+
+  "include": ["src/**/*"],                    // Qué archivos analizará TypeScript
+  "exclude": ["node_modules", "dist", "test"] // Qué carpetas ignorará
+}
