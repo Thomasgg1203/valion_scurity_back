@@ -1,12 +1,6 @@
 import { ClientRepository } from '../../core/domain/client.repository';
 import { Client } from '../../core/domain/client.entity';
 
-/**
- * Repositorio de clientes en memoria
- *
- * Esta implementación es para pruebas y desarrollo local.
- * Luego se puede reemplazar por una DB real (PostgreSQL, DynamoDB, etc.)
- */
 export class ClientRepositoryImpl implements ClientRepository {
   private clients: Client[] = [
     { id: 1, name: 'Cliente A', email: 'a@test.com', createdAt: new Date() },
@@ -34,5 +28,9 @@ export class ClientRepositoryImpl implements ClientRepository {
 
   async delete(id: number): Promise<void> {
     this.clients = this.clients.filter((c) => c.id !== id);
+  }
+
+  async count(): Promise<number> {
+    return this.clients.length;
   }
 }

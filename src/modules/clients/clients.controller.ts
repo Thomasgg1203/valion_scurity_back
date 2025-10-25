@@ -1,21 +1,30 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ClientsService } from './clients.service';
+import { ControllerResponse } from 'src/common/interceptors/response.interceptor';
+import { Client } from 'src/core/domain/client.entity';
 
-/**
- * Controlador de clientes
- *
- * Expone los endpoints HTTP de la API
- */
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
-  /**
-   * GET /clients
-   * Retorna todos los clientes
-   */
   @Get()
-  async findAll() {
-    return this.clientsService.getAllClients();
+  async getAll(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+  ): Promise<ControllerResponse<Client[]>> {
+    const { data, total } = await this.clientsService.getAllClients(
+      page ? Number(page) : undefined,
+      perPage ? Number(perPage) : undefined,
+    );
+
+    return {
+      data,
+      message: 'Clients successfully obtained',
+      meta: {
+        total,
+        page: page ? Number(page) : 1,
+        perPage: perPage ? Number(perPage) : total,
+      },
+    };
   }
 }

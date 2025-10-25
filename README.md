@@ -1,19 +1,15 @@
-# 🏗️ Proyecto Aseguradora API
+# 🏗️ Insurance API Project
 
-API backend desarrollada en **NestJS**, siguiendo principios de **arquitectura limpia**, pensada para **escalar** fácilmente y poder ejecutarse tanto en un servidor tradicional como en **AWS Lambda (serverless)**.
+Backend API developed in **NestJS**, following **clean architecture**, principles, designed to **scale** easily and run on a traditional server.
 
 ---
 
-## 🚀 Tecnologías principales
+## 🚀 Main Technologies
 
-| Componente | Tecnología | Versión / Detalle |
-|-------------|-------------|-------------------|
-| Lenguaje | Node.js | >= 20.x |
-| Framework backend | NestJS | ^10.x |
-| Infraestructura | AWS Lambda + API Gateway | Serverless Framework |
-| Base de datos (temporal) | En memoria (mock) | Próximamente DynamoDB / Aurora |
-| Estilos de arquitectura | Clean Architecture + Modular Design |
-| Librerías clave | `@vendia/serverless-express`, `aws-lambda` |
+| Component         | Technology | Version / Details |
+| ----------------- | ---------- | ----------------- |
+| Lenguaje          | Node.js    | >= 20.x           |
+| Framework backend | NestJS     | ^10.x             |
 
 ---
 
@@ -22,19 +18,24 @@ API backend desarrollada en **NestJS**, siguiendo principios de **arquitectura l
 ```
 valion_security_back/
 ├── src/
-│ ├── core/ # Lógica de negocio (pura)
-│ │ ├── domain/ # Entidades y modelos del dominio
-│ │ ├── use-cases/ # Casos de uso (aplican reglas del negocio)
-│ │ └── factories/ # Creadoras de entidades o estrategias
+│ ├── core/ # Pure business logic
+│ │ ├── domain/ # Domain entities and models
+│ │ │ ├── filters/
+│ │ │ ├── interceptors/
+│ │ │ ├── dto/
+│ │ │ ├── helpers/
+│ │ │ └── utils/
+│ │ ├── use-cases/ # Use cases (apply business rules)
+│ │ └── factories/ # Entity or strategy creators
 │ │
-│ ├── infrastructure/ # Capa de datos y adaptadores externos
-│ │ ├── database/ # Conexiones a BD (DynamoDB, Aurora, etc)
-│ │ ├── repositories/ # Repositorios que implementan interfaces del core
-│ │ └── mappers/ # Conversión entre entidades y DTOs
+│ ├── infrastructure/ # Data layer and external adapters
+│ │ ├── database/ # DB connections
+│ │ ├── repositories/ # Repositories implementing core interfaces
+│ │ └── mappers/ # Conversion between entities and DTOs
 │ │
-│ ├── modules/ # Módulos NestJS (controladores, servicios)
+│ ├── modules/ # NestJS modules (controllers, services)
 │ │ ├── clients/
-│ | │   ├── __tests__/                 👈 carpeta exclusiva de tests
+│ | │   ├── __tests__/
 │ | │   │   ├── clients.controller.spec.ts
 │ | │   │   └── clients.service.spec.ts
 │ │ │ ├── clients.controller.ts
@@ -44,84 +45,71 @@ valion_security_back/
 │ │ ├── auth/
 │ │ └── rules-engine/
 │ │
-│ ├── common/ # Filtros, interceptores, DTOs y helpers
-│ ├── config/ # Variables de entorno, configuración
+│ ├── common/ # Filters, interceptors, DTOs, and helpers
+│ ├── config/ # Environment variables, configuration
 │ ├── app.module.ts
-│ ├── main.ts # Entrypoint local
-│ └── lambda.ts # Entrypoint serverless
+│ ├── main.ts # Local entry point
 │
-├── serverless.yml # Configuración de despliegue AWS Lambda
 └── package.json
 ```
 
+## ⚙️ Installation
 
-## ⚙️ Instalación
+### 1️⃣ Clone the repository
 
-### 1️⃣ Clonar el repositorio
 ```bash
 git clone https://github.com/Thomasgg1203/valion_scurity_back.git
 
 cd valion_scurity_back
 ```
 
-### 2️⃣ Instalar dependencias
+### 2️⃣ Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Ejecutar en modo desarrollo
+### 3️⃣ Run in development mode
+
 ```bash
 npm run start:dev
 ```
 
-## ☁️ Despliegue en AWS Lambda
+## 🧠 Clean Structure — Guide to Understand
 
-### 1️⃣ Instalar Serverless Framework
-```bash
-npm install -g serverless
-```
-### 2️⃣ Desplegar
-```bash
-serverless deploy
-```
-Esto creará una función Lambda con tu API NestJS completa, accesible desde un endpoint HTTPS público generado por API Gateway.
-
-## 🧠 Estructura limpia — Guía para entender
-| Capa               | Descripción                                                | Ejemplo                                             |
+| Layer              | Descripción                                                | Ejemplo                                             |
 | ------------------ | ---------------------------------------------------------- | --------------------------------------------------- |
-| **Core**           | Contiene la lógica de negocio pura (no depende de NestJS). | `core/use-cases/create-client.usecase.ts`           |
-| **Infrastructure** | Implementa detalles técnicos como repositorios o mappers.  | `infrastructure/repositories/clients.repository.ts` |
-| **Modules**        | Conecta las capas anteriores con el framework NestJS.      | `modules/clients/clients.service.ts`                |
-| **Common**         | Utilidades compartidas, DTOs y respuestas estándar.        | `common/response-builder.ts`                        |
-
+| **Core**           | Contains pure business logic (does not depend on NestJS).  | `core/use-cases/create-client.usecase.ts`           |
+| **Infrastructure** | Implements technical details like repositories or mappers. | `infrastructure/repositories/clients.repository.ts` |
+| **Modules**        | Connects previous layers with the NestJS framework.        | `modules/clients/clients.service.ts`                |
+| **Common**         | Shared utilities, DTOs, and standard responses.            | `common/response-builder.ts`                        |
 
 ### 🧷Base de Scripts
-``` bash
+
+```bash
 {
-  "name": "valion_scurity_back",         // Nombre del proyecto
-  "version": "0.0.1",                    // Versión actual
-  "private": true,                       // Evita publicar el paquete en NPM
-  "license": "UNLICENSED",               // Licencia interna
+  "name": "valion_scurity_back",         // Project name
+  "version": "0.0.1",                    // Current version
+  "private": true,                       // Prevents publishing to NPM
+  "license": "UNLICENSED",               // Internal license
 
-  "scripts": {                                   // ⚙️ Comandos que puedes ejecutar con npm run ...
-    "build": "nest build",                       // Compila el proyecto NestJS (usa tsconfig.json)
-    "start": "nest start",                       // Inicia el servidor NestJS en modo normal
-    "start:dev": "nest start --watch",           // Modo desarrollo con recarga automática
-    "start:debug": "nest start --debug --watch", // Modo depuración
-    "start:prod": "node dist/main",              // Inicia la versión compilada (producción)
+  "scripts": {                                   // ⚙️ Commands you can run with npm run ...
+    "build": "nest build",                       // Compile the NestJS project (uses tsconfig.json)
+    "start": "nest start",                       // Start NestJS server in normal mode
+    "start:dev": "nest start --watch",           // Development mode with auto-reload
+    "start:debug": "nest start --debug --watch", // Debug mode
+    "start:prod": "node dist/main",              // Run compiled version (production)
 
-    // 🧹 Calidad y formato
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",       // Revisa errores de estilo
-    "lint:fix": "eslint . --ext .ts --fix",                        // Corrige automáticamente errores
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"", // Aplica formato con Prettier
+    // 🧹 Quality and formatting
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",       // Check style errors
+    "lint:fix": "eslint . --ext .ts --fix",                        // Auto-fix errors
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"", // Apply formatting with Prettier
 
-    // 🧪 Pruebas unitarias
+    // 🧪 Unit tests
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
-
 ```

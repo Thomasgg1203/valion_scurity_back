@@ -1,19 +1,13 @@
-import { ClientsRepository } from '../../infrastructure/repositories/clients.repository';
-
-/**
- * Caso de uso: Crear un cliente.
- * Contiene la lógica de negocio pura (no depende de NestJS).
- */
+import { Client } from '../domain/client.entity';
+import { ClientRepository } from '../domain/client.repository';
 export class CreateClientUseCase {
-  constructor(private readonly repo: ClientsRepository) {}
+  constructor(private readonly repo: ClientRepository) {}
 
-  async execute(data: any) {
-    // Validaciones del negocio
+  async execute(data: Client) {
     if (!data.name) {
       throw new Error('El nombre del cliente es obligatorio');
     }
 
-    // Se delega la persistencia al repositorio
     return this.repo.create(data);
   }
 }
