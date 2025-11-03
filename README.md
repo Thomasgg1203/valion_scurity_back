@@ -8,12 +8,12 @@ Backend API developed in **NestJS**, following **clean architecture**, principle
 
 | Component         | Technology | Version / Details |
 | ----------------- | ---------- | ----------------- |
-| Lenguaje          | Node.js    | >= 20.x           |
+| Language          | Node.js    | >= 20.x           |
 | Framework backend | NestJS     | ^10.x             |
 
 ---
 
-## 🧩 Estructura del proyecto
+## 🧩 Project structure
 
 ```
 valion_security_back/
@@ -41,6 +41,26 @@ valion_security_back/
 │ │ │ ├── clients.controller.ts
 │ │ │ ├── clients.service.ts
 │ │ │ └── clients.module.ts
+| │ ├─ catalogs/               (state, commodity, lob, coverage, limit_unit)
+| │ │  ├─ catalogs.module.ts
+| │ │  ├─ entities/*.entity.ts
+| │ │  ├─ dto/*.dto.ts
+| │ │  └─ catalogs.service.ts
+| │ ├─ partners/               (mga, carrier, mga_carrier)
+| │ │  ├─ partners.module.ts
+| │ │  ├─ entities/*.entity.ts
+| │ │  ├─ dto/*.dto.ts
+| │ │  └─ partners.service.ts
+| │ ├─ guidelines/             (category, field, rules, state_rules, appetite, exclusion)
+| │ │  ├─ guidelines.module.ts
+| │ │  ├─ entities/*.entity.ts
+| │ │  ├─ dto/*.dto.ts
+| │ │  ├─ guidelines.service.ts
+| │ │  └─ guidelines.controller.ts
+| │ └─ audit/
+| │    ├─ audit.module.ts
+| │    ├─ audit.service.ts
+| │    └─ entities/audit-log.entity.ts
 │ │ ├── insurers/
 │ │ ├── auth/
 │ │ └── rules-engine/
@@ -77,14 +97,14 @@ npm run start:dev
 
 ## 🧠 Clean Structure — Guide to Understand
 
-| Layer              | Descripción                                                | Ejemplo                                             |
+| Layer              | Description                                                | Example                                             |
 | ------------------ | ---------------------------------------------------------- | --------------------------------------------------- |
 | **Core**           | Contains pure business logic (does not depend on NestJS).  | `core/use-cases/create-client.usecase.ts`           |
 | **Infrastructure** | Implements technical details like repositories or mappers. | `infrastructure/repositories/clients.repository.ts` |
 | **Modules**        | Connects previous layers with the NestJS framework.        | `modules/clients/clients.service.ts`                |
 | **Common**         | Shared utilities, DTOs, and standard responses.            | `common/response-builder.ts`                        |
 
-### 🧷Base de Scripts
+### 🧷Script Base
 
 ```bash
 {
