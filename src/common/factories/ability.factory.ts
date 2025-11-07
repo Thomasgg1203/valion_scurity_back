@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { AbilityBuilder, AbilityClass, ExtractSubjectType, Ability } from '@casl/ability';
+import { AbilityBuilder, createMongoAbility, MongoAbility } from '@casl/ability';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RolePermissionEntity } from '../../infrastructure/database/entities/role-permission.entity';
 import { UserEntity } from '../../infrastructure/database/entities/user.entity';
+import { PermissionAction } from '../../common/enums/permission-action.enum';
 
-export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
 export type Subjects = string | 'all';
-
-export type AppAbility = Ability<[Actions, Subjects]>;
+export type AppAbility = MongoAbility<[PermissionAction, Subjects]>;
 
 @Injectable()
 export class AbilityFactory {
@@ -18,23 +17,26 @@ export class AbilityFactory {
   ) {}
 
   async defineAbility(user: UserEntity) {
-    const { can, build } = new AbilityBuilder<AppAbility>(Ability as AbilityClass<AppAbility>);
+    const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
-    if (user.role?.name === 'SuperAdmin') {
-      can('manage', 'all');
-    } else {
-      const rolePerms = await this.rolePermRepo.find({
-        where: { role: { id: user.role.id } },
-        relations: ['permission'],
-      });
-
-      rolePerms.forEach((rp) => {
-        can(rp.permission.action as Actions, rp.permission.subject as Subjects);
-      });
+    if (!user.role) {
+      return build();
     }
 
-    return build({
-      detectSubjectType: (item) => item as ExtractSubjectType<Subjects>,
+    if (user.role.name === 'SuperAdmin') {
+      can(PermissionAction.MANAGE, 'all');
+      return build();
+    }
+
+    const rolePerms = await this.rolePermRepo.find({
+      where: { role: { id: user.role.id } },
+      relations: ['permission'],
     });
+
+    rolePerms.forEach((rp) => {
+      can(rp.permission.action as PermissionAction, rp.permission.subject as Subjects);
+    });
+
+    return build();
   }
 }

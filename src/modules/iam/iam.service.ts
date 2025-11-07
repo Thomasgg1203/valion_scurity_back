@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, DataSource } from 'typeorm';
 import { RoleEntity } from '../../infrastructure/database/entities/role.entity';
 import { PermissionEntity } from '../../infrastructure/database/entities/permission.entity';
 import { RolePermissionEntity } from '../../infrastructure/database/entities/role-permission.entity';
@@ -21,6 +21,8 @@ export class IamService {
 
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async createRole(data: CreateRoleDto) {
@@ -49,17 +51,15 @@ export class IamService {
 
   async updateRole(id: string, data: Partial<CreateRoleDto>) {
     const role = await this.findOneRole(id);
-    if (role.deleted) throw new NotFoundException('Cannot update a deleted role');
-
     Object.assign(role, data);
     return this.roleRepo.save(role);
   }
 
   async deleteRole(id: string) {
-    const role = await this.findOneRole(id);
-    role.deleted = true;
-    await this.roleRepo.softRemove(role);
-    return { message: 'Role deleted logically' };
+    return await this.roleRepo.update(id, {
+      deleted: true,
+      deletedAt: new Date(),
+    });
   }
 
   async findAllPermissions() {
@@ -67,14 +67,23 @@ export class IamService {
   }
 
   async assignPermissionsToRole(roleId: string, permissionIds: string[]) {
-    const role = await this.findOneRole(roleId);
-    await this.rolePermRepo.delete({ role: { id: roleId } });
+    await this.dataSource.transaction(async (manager) => {
+      const role = await manager.findOne(RoleEntity, { where: { id: roleId } });
+      if (!role) throw new NotFoundException('Role not found');
 
-    const permissions = await this.permRepo.find({ where: { id: In(permissionIds) } });
-    const toSave = permissions.map((p) => this.rolePermRepo.create({ role, permission: p }));
+      const permissions = await manager.find(PermissionEntity, {
+        where: { id: In(permissionIds) },
+      });
+      if (permissions.length !== permissionIds.length) {
+        throw new NotFoundException('One or more permission IDs not found');
+      }
 
-    await this.rolePermRepo.save(toSave);
-    return this.findOneRole(roleId);
+      await manager.delete(RolePermissionEntity, { role: { id: roleId } });
+      const toSave = permissions.map((p) =>
+        manager.create(RolePermissionEntity, { role, permission: p }),
+      );
+      await manager.save(RolePermissionEntity, toSave);
+    });
   }
 
   async assignRoleToUser(userId: string, roleId: string) {
