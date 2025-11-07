@@ -14,7 +14,7 @@ import { BaseModule } from './modules/base.module';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: false,
+      synchronize: true,
       ssl: process.env.DB_SSL === 'true',
     }),
 
