@@ -1,29 +1,22 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
+  Column,
+  DeleteDateColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
 } from 'typeorm';
-import { RoleEntity } from './role.entity';
 
-@Entity({ name: 'users' })
-export class UserEntity {
+@Entity({ name: 'limit_unit' })
+export class LimitUnitEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
-  email: string;
+  @Column({ length: 20, unique: true })
+  code: string;
 
-  @Column()
-  password: string;
-
-  @ManyToOne(() => RoleEntity, (r) => r.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
-  role: RoleEntity;
+  @Column({ length: 50 })
+  name: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

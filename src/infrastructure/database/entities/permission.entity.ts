@@ -6,10 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
 import { RolePermissionEntity } from './role-permission.entity';
 
-@Entity('permissions')
+@Entity({ name: 'permissions' })
 @Index(['action', 'subject'], { unique: true })
 export class PermissionEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -27,9 +28,12 @@ export class PermissionEntity {
   @OneToMany(() => RolePermissionEntity, (rp) => rp.permission)
   rolePermissions: RolePermissionEntity[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }

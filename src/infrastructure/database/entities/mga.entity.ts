@@ -5,13 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
-import { MgaCarrier } from './mga-carrier.entity';
+import { MgaCarrierEntity } from './mga-carrier.entity';
 
 @Entity({ name: 'mga' })
-export class Mga {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class MgaEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ length: 150, unique: true })
   name: string;
@@ -22,15 +23,15 @@ export class Mga {
   @Column({ type: 'text', nullable: true })
   notes?: string;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
 
-  @OneToMany(() => MgaCarrier, (mc) => mc.mga)
-  mgaCarriers: MgaCarrier[];
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  @OneToMany(() => MgaCarrierEntity, (mc) => mc.mga)
+  mgaCarriers: MgaCarrierEntity[];
 }

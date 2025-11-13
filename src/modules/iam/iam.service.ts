@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, DataSource } from 'typeorm';
+import { In, Repository, DataSource, IsNull } from 'typeorm';
 import { RoleEntity } from '../../infrastructure/database/entities/role.entity';
 import { PermissionEntity } from '../../infrastructure/database/entities/permission.entity';
 import { RolePermissionEntity } from '../../infrastructure/database/entities/role-permission.entity';
@@ -32,7 +32,7 @@ export class IamService {
 
   async findAllRoles() {
     return this.roleRepo.find({
-      where: { deleted: false },
+      where: { deletedAt: IsNull() },
       relations: ['rolePermissions', 'rolePermissions.permission'],
       order: { createdAt: 'DESC' },
     });
@@ -40,7 +40,7 @@ export class IamService {
 
   async findOneRole(id: string, includeDeleted = false) {
     const role = await this.roleRepo.findOne({
-      where: includeDeleted ? { id } : { id, deleted: false },
+      where: includeDeleted ? { id } : { id, deletedAt: IsNull() },
       relations: ['rolePermissions', 'rolePermissions.permission'],
       withDeleted: includeDeleted,
     });
@@ -56,10 +56,7 @@ export class IamService {
   }
 
   async deleteRole(id: string) {
-    return await this.roleRepo.update(id, {
-      deleted: true,
-      deletedAt: new Date(),
-    });
+    return this.roleRepo.softDelete(id);
   }
 
   async findAllPermissions() {

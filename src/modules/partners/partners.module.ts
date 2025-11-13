@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PartnersService } from './partners.service';
 import { PartnersController } from './partners.controller';
-import { Mga } from './entities/mga.entity';
-import { Carrier } from './entities/carrier.entity';
-import { MgaCarrier } from './entities/mga-carrier.entity';
 import { AuditModule } from '../audit/audit.module';
+import { MgaEntity } from 'src/infrastructure/database/entities/mga.entity';
+import { CarrierEntity } from 'src/infrastructure/database/entities/carrier.entity';
+import { MgaCarrierEntity } from 'src/infrastructure/database/entities/mga-carrier.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mga, Carrier, MgaCarrier]),
-    AuditModule, // 🔍 permite registrar acciones en este módulo
+    TypeOrmModule.forFeature([MgaEntity, CarrierEntity, MgaCarrierEntity]),
+    AuditModule, // 🔍 Allows you to record actions in this module
   ],
   controllers: [PartnersController],
   providers: [PartnersService],

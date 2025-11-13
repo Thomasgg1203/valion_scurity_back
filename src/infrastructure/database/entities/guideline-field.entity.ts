@@ -6,17 +6,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { GuidelineCategory } from './guideline_category.entity';
+import { GuidelineCategoryEntity } from './guideline_category.entity';
 
 @Entity({ name: 'guideline_field' })
-export class GuidelineField {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class GuidelineFieldEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => GuidelineCategory, (cat) => cat.fields, { onDelete: 'CASCADE' })
+  @ManyToOne(() => GuidelineCategoryEntity, (cat) => cat.fields, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'category_id' })
-  category: GuidelineCategory;
+  category: GuidelineCategoryEntity;
 
   @Column({ length: 100 })
   name: string;
@@ -27,12 +28,12 @@ export class GuidelineField {
   @Column({ type: 'text', nullable: true })
   possible_values?: string;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }

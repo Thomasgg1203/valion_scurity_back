@@ -1,29 +1,24 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
-import { RoleEntity } from './role.entity';
+import { MgaCarrierEntity } from './mga-carrier.entity';
 
-@Entity({ name: 'users' })
-export class UserEntity {
+@Entity({ name: 'carrier' })
+export class CarrierEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
-  email: string;
+  @Column({ length: 150, unique: true })
+  name: string;
 
-  @Column()
-  password: string;
-
-  @ManyToOne(() => RoleEntity, (r) => r.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
-  role: RoleEntity;
+  @Column({ type: 'text', nullable: true })
+  notes?: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -33,4 +28,7 @@ export class UserEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
+
+  @OneToMany(() => MgaCarrierEntity, (mc) => mc.carrier)
+  mgaCarriers: MgaCarrierEntity[];
 }

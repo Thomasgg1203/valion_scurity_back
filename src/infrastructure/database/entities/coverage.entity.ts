@@ -6,17 +6,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { LineOfBusiness } from './line-of-business.entity';
+import { LineOfBusinessEntity } from './line-of-business.entity';
 
 @Entity({ name: 'coverage' })
-export class Coverage {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class CoverageEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => LineOfBusiness, (lob) => lob.coverages, { onDelete: 'CASCADE' })
+  @ManyToOne(() => LineOfBusinessEntity, (lob) => lob.coverages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'lob_id' })
-  lob: LineOfBusiness;
+  lob: LineOfBusinessEntity;
 
   @Column({ length: 50 })
   code: string;
@@ -27,12 +28,12 @@ export class Coverage {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }
