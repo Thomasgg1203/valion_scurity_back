@@ -1,15 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity({ name: 'audit_log' })
-export class AuditLog {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class AuditLogEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ name: 'entity_name', length: 150 })
   entityName: string;
 
-  @Column({ name: 'record_id', type: 'int' })
-  recordId: number;
+  @Column({ name: 'record_id', type: 'uuid' })
+  recordId: string;
 
   @Column({ length: 50 })
   action: string;

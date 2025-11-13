@@ -7,23 +7,24 @@ import {
   UpdateDateColumn,
   JoinColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
-import { Mga } from './mga.entity';
-import { Carrier } from './carrier.entity';
+import { MgaEntity } from './mga.entity';
+import { CarrierEntity } from './carrier.entity';
 
 @Entity({ name: 'mga_carrier' })
 @Index(['mga', 'carrier'], { unique: true })
-export class MgaCarrier {
+export class MgaCarrierEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
-  @ManyToOne(() => Mga, (mga) => mga.mgaCarriers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MgaEntity, (mga) => mga.mgaCarriers, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'mga_id' })
-  mga: Mga;
+  mga: MgaEntity;
 
-  @ManyToOne(() => Carrier, (carrier) => carrier.mgaCarriers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CarrierEntity, (carrier) => carrier.mgaCarriers, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'carrier_id' })
-  carrier: Carrier;
+  carrier: CarrierEntity;
 
   @Column({ length: 255 })
   concat_name: string;
@@ -33,9 +34,6 @@ export class MgaCarrier {
 
   @Column({ type: 'text', nullable: true })
   appetite_notes?: string;
-
-  @Column({ default: false })
-  deleted: boolean;
 
   @Column({ name: 'created_by', length: 100, nullable: true })
   createdBy?: string;
@@ -48,4 +46,7 @@ export class MgaCarrier {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }

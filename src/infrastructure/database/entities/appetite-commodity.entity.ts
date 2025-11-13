@@ -7,23 +7,24 @@ import {
   UpdateDateColumn,
   JoinColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
-import { MgaCarrier } from '../../partners/entities/mga-carrier.entity';
-import { Commodity } from '../../catalogs/entities/commodity.entity';
+import { CommodityEntity } from './commodity.entity';
+import { MgaCarrierEntity } from './mga-carrier.entity';
 
 @Entity({ name: 'appetite_commodity' })
 @Index(['mgaCarrier', 'commodity'], { unique: true })
-export class AppetiteCommodity {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class AppetiteCommodityEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => MgaCarrier, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MgaCarrierEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'mga_carrier_id' })
-  mgaCarrier: MgaCarrier;
+  mgaCarrier: MgaCarrierEntity;
 
-  @ManyToOne(() => Commodity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CommodityEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'commodity_id' })
-  commodity: Commodity;
+  commodity: CommodityEntity;
 
   @Column({ default: false })
   accepted: boolean;
@@ -33,9 +34,6 @@ export class AppetiteCommodity {
 
   @Column({ length: 20, nullable: true })
   status?: string;
-
-  @Column({ default: false })
-  deleted: boolean;
 
   @Column({ name: 'created_by', length: 100, nullable: true })
   createdBy?: string;
@@ -48,4 +46,7 @@ export class AppetiteCommodity {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }

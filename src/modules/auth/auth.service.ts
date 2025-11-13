@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../infrastructure/database/entities/user.entity';
 import { RoleEntity } from '../../infrastructure/database/entities/role.entity';
@@ -18,7 +18,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.userRepo.findOne({
-      where: { email, deleted: false },
+      where: { email, deletedAt: IsNull() },
       relations: ['role'],
     });
 
@@ -51,7 +51,7 @@ export class AuthService {
 
   async me(userId: string) {
     const user = await this.userRepo.findOne({
-      where: { id: userId, deleted: false },
+      where: { id: userId, deletedAt: IsNull() },
       relations: ['role'],
     });
     if (!user) throw new UnauthorizedException('User not found');

@@ -10,7 +10,7 @@ import {
 import { RolePermissionEntity } from './role-permission.entity';
 import { UserEntity } from './user.entity';
 
-@Entity('roles')
+@Entity({ name: 'roles' })
 export class RoleEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,21 +21,18 @@ export class RoleEntity {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @OneToMany(() => RolePermissionEntity, (rp) => rp.role)
   rolePermissions: RolePermissionEntity[];
 
   @OneToMany(() => UserEntity, (u) => u.role)
   users: UserEntity[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
 
-  @DeleteDateColumn({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
 }

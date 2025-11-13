@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { UserEntity } from '../../infrastructure/database/entities/user.entity';
 
 export interface JwtPayload {
@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
-      where: { id: payload.sub, deleted: false },
+      where: { id: payload.sub, deletedAt: IsNull() },
       relations: ['role'],
     });
 

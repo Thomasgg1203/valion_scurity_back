@@ -5,13 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
-import { Coverage } from './coverage.entity';
+import { CoverageEntity } from './coverage.entity';
 
 @Entity({ name: 'line_of_business' })
-export class LineOfBusiness {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class LineOfBusinessEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ length: 50, unique: true })
   code: string;
@@ -19,16 +20,16 @@ export class LineOfBusiness {
   @Column({ length: 150 })
   name: string;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
 
-  // Relación con coverage
-  @OneToMany(() => Coverage, (coverage) => coverage.lob)
-  coverages: Coverage[];
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  // Relation with coverage
+  @OneToMany(() => CoverageEntity, (coverage) => coverage.lob)
+  coverages: CoverageEntity[];
 }

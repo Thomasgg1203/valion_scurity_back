@@ -5,13 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
-import { GuidelineField } from './guideline-field.entity';
+import { GuidelineFieldEntity } from './guideline-field.entity';
 
 @Entity({ name: 'guideline_category' })
-export class GuidelineCategory {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class GuidelineCategoryEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ length: 100, unique: true })
   name: string;
@@ -22,15 +23,15 @@ export class GuidelineCategory {
   @Column({ name: 'order_index', nullable: true })
   orderIndex?: number;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
 
-  @OneToMany(() => GuidelineField, (field) => field.category)
-  fields: GuidelineField[];
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  @OneToMany(() => GuidelineFieldEntity, (field) => field.category)
+  fields: GuidelineFieldEntity[];
 }

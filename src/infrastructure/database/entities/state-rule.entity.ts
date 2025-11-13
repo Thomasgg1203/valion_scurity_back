@@ -6,22 +6,28 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { MgaCarrier } from '../../partners/entities/mga-carrier.entity';
-import { GuidelineField } from './guideline-field.entity';
+import { StateEntity } from './state.entity';
+import { MgaCarrierEntity } from './mga-carrier.entity';
+import { GuidelineFieldEntity } from './guideline-field.entity';
 
-@Entity({ name: 'guideline_rule' })
-export class GuidelineRule {
-  @PrimaryGeneratedColumn()
-  id: number;
+@Entity({ name: 'state_rule' })
+export class StateRuleEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => MgaCarrier, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MgaCarrierEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'mga_carrier_id' })
-  mgaCarrier: MgaCarrier;
+  mgaCarrier: MgaCarrierEntity;
 
-  @ManyToOne(() => GuidelineField, { onDelete: 'CASCADE' })
+  @ManyToOne(() => StateEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'state_id' })
+  state: StateEntity;
+
+  @ManyToOne(() => GuidelineFieldEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'field_id' })
-  field: GuidelineField;
+  field: GuidelineFieldEntity;
 
   @Column({ length: 20 })
   operator: string;
@@ -38,9 +44,6 @@ export class GuidelineRule {
   @Column({ default: true })
   is_current: boolean;
 
-  @Column({ default: false })
-  deleted: boolean;
-
   @Column({ name: 'created_by', length: 100, nullable: true })
   createdBy?: string;
 
@@ -52,4 +55,7 @@ export class GuidelineRule {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
 }
