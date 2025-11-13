@@ -10,7 +10,7 @@ import { MgaCarrier } from './mga-carrier.entity';
 
 @Entity({ name: 'carrier' })
 export class Carrier {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ length: 150, unique: true })

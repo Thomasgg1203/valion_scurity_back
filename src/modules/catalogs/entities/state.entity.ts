@@ -8,7 +8,7 @@ import {
 
 @Entity({ name: 'state' })
 export class State {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ length: 10, unique: true })

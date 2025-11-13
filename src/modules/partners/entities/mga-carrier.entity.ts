@@ -14,7 +14,7 @@ import { Carrier } from './carrier.entity';
 @Entity({ name: 'mga_carrier' })
 @Index(['mga', 'carrier'], { unique: true })
 export class MgaCarrier {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @ManyToOne(() => Mga, (mga) => mga.mgaCarriers, { onDelete: 'CASCADE' })
