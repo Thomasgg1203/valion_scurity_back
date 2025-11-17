@@ -1,6 +1,6 @@
 export interface FindOptions {
-  skip?: number;
-  take?: number;
+  page?: number;
+  limit?: number;
   search?: string;
   filters?: Record<string, unknown>;
 }

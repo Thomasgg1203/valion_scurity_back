@@ -19,7 +19,7 @@ import { LoginUseCase } from '../../core/use-cases/auth/login.usecase';
 import { GetMeUseCase } from '../../core/use-cases/auth/get-me.usecase';
 
 // Domain repository interface
-import { USER_REPOSITORY } from 'src/infrastructure/repositories/auth/tokens';
+import { USER_REPOSITORY } from 'src/core/repositories/tokens';
 
 @Module({
   imports: [

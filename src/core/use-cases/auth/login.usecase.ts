@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { USER_REPOSITORY } from 'src/infrastructure/repositories/auth/tokens';
+import { USER_REPOSITORY } from 'src/core/repositories/tokens';
 import type { UserRepository } from 'src/infrastructure/repositories/user.repository';
 
 export class LoginUseCase {

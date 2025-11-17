@@ -21,8 +21,8 @@ export class StateRepositoryImpl implements StateRepository {
       });
     }
 
-    if (options.skip !== undefined) query.skip(options.skip);
-    if (options.take !== undefined) query.take(options.take);
+    if (options.page !== undefined) query.skip(options.page);
+    if (options.limit !== undefined) query.take(options.limit);
 
     const [entities, total] = await query.getManyAndCount();
 

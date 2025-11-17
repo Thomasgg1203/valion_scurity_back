@@ -27,8 +27,8 @@ export class CatalogsController {
   })
   findAll(@Query() query: FindOptionsDto) {
     return this.service.findAllStates({
-      skip: query.skip ? Number(query.skip) : undefined,
-      take: query.take ? Number(query.take) : undefined,
+      page: query.page ? Number(query.page) : undefined,
+      limit: query.limit ? Number(query.limit) : undefined,
       search: query.search,
     });
   }

@@ -1,10 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IamService } from './iam.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { FindOptions } from 'src/common/types/find-options';
+import { FindRolesDto } from './dto/find-roles.dto';
 
 @ApiTags('IAM - Roles and Permissions')
 @ApiBearerAuth()
@@ -22,8 +34,14 @@ export class IamController {
 
   @Get('roles')
   @ApiOperation({ summary: 'List all active roles' })
-  findAllRoles() {
-    return this.iamService.findAllRoles();
+  async findRoles(@Query() query: FindRolesDto) {
+    const options: FindOptions = {
+      page: query.page ? Number(query.page) : undefined,
+      limit: query.limit ? Number(query.limit) : undefined,
+      search: query.search,
+    };
+
+    return this.iamService.findAllRoles(options);
   }
 
   @Get('roles/:id')

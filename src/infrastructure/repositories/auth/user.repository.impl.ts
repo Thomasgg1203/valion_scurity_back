@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
-import { UserRepository } from '../user.repository';
+
 import { UserEntity } from 'src/infrastructure/database/entities/user.entity';
 import { User } from 'src/core/models/user.model';
+import type { UserRepository } from '../user.repository';
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepository {
@@ -24,8 +25,8 @@ export class UserRepositoryImpl implements UserRepository {
       id: user.id,
       email: user.email,
       password: user.password,
-      roleId: user.role?.id,
-      roleName: user.role?.name,
+      roleId: user.role?.id ?? null,
+      roleName: user.role?.name ?? null,
     });
   }
 
@@ -40,8 +41,39 @@ export class UserRepositoryImpl implements UserRepository {
     return new User({
       id: user.id,
       email: user.email,
-      roleName: user.role?.name,
-      roleId: user.role?.id,
+      roleId: user.role?.id ?? null,
+      roleName: user.role?.name ?? null,
     });
+  }
+
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    await this.repo.update(userId, { role: { id: roleId } });
+  }
+
+  async findUserWithPermissions(userId: string): Promise<{
+    id: string;
+    email: string;
+    roleId: string | null;
+    roleName: string | null;
+    permissions: { action: string; subject: string }[];
+  } | null> {
+    const user = await this.repo.findOne({
+      where: { id: userId },
+      relations: ['role', 'role.rolePermissions', 'role.rolePermissions.permission'],
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      roleId: user.role?.id ?? null,
+      roleName: user.role?.name ?? null,
+      permissions:
+        user.role?.rolePermissions?.map((rp) => ({
+          action: rp.permission.action,
+          subject: rp.permission.subject,
+        })) ?? [],
+    };
   }
 }

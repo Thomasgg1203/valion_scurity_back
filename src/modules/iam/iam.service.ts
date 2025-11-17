@@ -1,116 +1,64 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, DataSource, IsNull } from 'typeorm';
-import { RoleEntity } from '../../infrastructure/database/entities/role.entity';
-import { PermissionEntity } from '../../infrastructure/database/entities/permission.entity';
-import { RolePermissionEntity } from '../../infrastructure/database/entities/role-permission.entity';
-import { UserEntity } from '../../infrastructure/database/entities/user.entity';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { RoleRepository } from 'src/common/types/ima/role.repository';
+import { FindOptions } from 'src/common/types/find-options';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { ListPermissionsUseCase } from 'src/core/use-cases/iam/list-permissions.usecase';
+import { AssignPermissionsUseCase } from 'src/core/use-cases/iam/assign-permissions.usecase';
+import { AssignRoleToUserUseCase } from 'src/core/use-cases/iam/assign-role-to-user.usecase';
+import { GetUserPermissionsUseCase } from 'src/core/use-cases/iam/get-user-permissions.usecase';
+import { ROLE_REPOSITORY } from 'src/core/repositories/tokens';
 
 @Injectable()
 export class IamService {
   constructor(
-    @InjectRepository(RoleEntity)
-    private readonly roleRepo: Repository<RoleEntity>,
-
-    @InjectRepository(PermissionEntity)
-    private readonly permRepo: Repository<PermissionEntity>,
-
-    @InjectRepository(RolePermissionEntity)
-    private readonly rolePermRepo: Repository<RolePermissionEntity>,
-
-    @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>,
-
-    private readonly dataSource: DataSource,
+    @Inject(ROLE_REPOSITORY)
+    private readonly roleRepo: RoleRepository,
+    private readonly listPermissions: ListPermissionsUseCase,
+    private readonly assignPermissions: AssignPermissionsUseCase,
+    private readonly assignRole: AssignRoleToUserUseCase,
+    private readonly getUserPerms: GetUserPermissionsUseCase,
   ) {}
 
   async createRole(data: CreateRoleDto) {
-    const role = this.roleRepo.create(data);
-    return this.roleRepo.save(role);
+    return this.roleRepo.create(data);
   }
 
-  async findAllRoles() {
-    return this.roleRepo.find({
-      where: { deletedAt: IsNull() },
-      relations: ['rolePermissions', 'rolePermissions.permission'],
-      order: { createdAt: 'DESC' },
-    });
+  async findAllRoles(options?: FindOptions) {
+    return this.roleRepo.findAll(options);
   }
 
-  async findOneRole(id: string, includeDeleted = false) {
-    const role = await this.roleRepo.findOne({
-      where: includeDeleted ? { id } : { id, deletedAt: IsNull() },
-      relations: ['rolePermissions', 'rolePermissions.permission'],
-      withDeleted: includeDeleted,
-    });
-
+  async findOneRole(id: string) {
+    const role = await this.roleRepo.findById(id);
     if (!role) throw new NotFoundException('Role not found');
     return role;
   }
 
-  async updateRole(id: string, data: Partial<CreateRoleDto>) {
-    const role = await this.findOneRole(id);
-    Object.assign(role, data);
-    return this.roleRepo.save(role);
+  async updateRole(id: string, data: UpdateRoleDto) {
+    try {
+      return await this.roleRepo.update(id, data);
+    } catch {
+      throw new NotFoundException('Role not found');
+    }
   }
 
   async deleteRole(id: string) {
-    return this.roleRepo.softDelete(id);
+    await this.roleRepo.softDelete(id);
   }
 
-  async findAllPermissions() {
-    return this.permRepo.find({ order: { subject: 'ASC', action: 'ASC' } });
+  findAllPermissions() {
+    return this.listPermissions.execute();
   }
 
-  async assignPermissionsToRole(roleId: string, permissionIds: string[]) {
-    await this.dataSource.transaction(async (manager) => {
-      const role = await manager.findOne(RoleEntity, { where: { id: roleId } });
-      if (!role) throw new NotFoundException('Role not found');
-
-      const permissions = await manager.find(PermissionEntity, {
-        where: { id: In(permissionIds) },
-      });
-      if (permissions.length !== permissionIds.length) {
-        throw new NotFoundException('One or more permission IDs not found');
-      }
-
-      await manager.delete(RolePermissionEntity, { role: { id: roleId } });
-      const toSave = permissions.map((p) =>
-        manager.create(RolePermissionEntity, { role, permission: p }),
-      );
-      await manager.save(RolePermissionEntity, toSave);
-    });
+  assignPermissionsToRole(roleId: string, permissionIds: string[]) {
+    return this.assignPermissions.execute(roleId, permissionIds);
   }
 
-  async assignRoleToUser(userId: string, roleId: string) {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-
-    const role = await this.roleRepo.findOne({ where: { id: roleId } });
-    if (!role) throw new NotFoundException('Role not found');
-
-    user.role = role;
-    return this.userRepo.save(user);
+  assignRoleToUser(userId: string, roleId: string) {
+    return this.assignRole.execute(userId, roleId);
   }
 
-  async getUserPermissions(userId: string) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: ['role', 'role.rolePermissions', 'role.rolePermissions.permission'],
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    const permissions = (user.role?.rolePermissions || []).map((rp) => ({
-      action: rp.permission.action,
-      subject: rp.permission.subject,
-    }));
-
-    return {
-      id: user.id,
-      role: user.role?.name,
-      permissions,
-    };
+  getUserPermissions(userId: string) {
+    return this.getUserPerms.execute(userId);
   }
 }

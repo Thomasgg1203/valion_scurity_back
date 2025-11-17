@@ -18,13 +18,13 @@ export class CatalogsService {
   }
 
   async findAllStates(query: FindOptions) {
-    const skip = query.skip && query.take ? (query.skip - 1) * query.take : undefined;
-    const take = query.take ?? undefined;
+    const page = query.page && query.limit ? (query.page - 1) * query.limit : undefined;
+    const limit = query.limit ?? undefined;
     const search = query.search ?? undefined;
 
     const { data, total } = await this.stateRepo.findAll({
-      skip,
-      take,
+      page,
+      limit,
       search,
     });
 
@@ -33,8 +33,8 @@ export class CatalogsService {
       message: 'States successfully obtained',
       meta: {
         total,
-        page: query.skip ?? 1,
-        perPage: query.take ?? total,
+        page: query.page ?? 1,
+        perPage: query.limit ?? total,
       },
     };
   }

@@ -8,7 +8,7 @@ export class FindOptionsDto {
   })
   @IsOptional()
   @IsNumberString()
-  skip?: string;
+  page?: string;
 
   @ApiPropertyOptional({
     description: 'Number of records to take (pagination limit).',
@@ -16,7 +16,7 @@ export class FindOptionsDto {
   })
   @IsOptional()
   @IsNumberString()
-  take?: string;
+  limit?: string;
 
   @ApiPropertyOptional({
     description: 'Search text to filter results.',
