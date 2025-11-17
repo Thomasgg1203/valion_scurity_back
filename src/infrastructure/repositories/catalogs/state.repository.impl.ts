@@ -1,10 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StateRepository } from '../../../core/domain/catalogs/state.repository';
-import { State } from '../../../core/domain/catalogs/state.model';
+import { StateRepository } from '../../../common/types/catalogs/state.repository';
+import { State } from '../../../core/models/state.model';
 import { StateEntity } from '../../database/entities/state.entity';
 import { StateMapper } from '../../mappers/catalogs/state.mapper';
-import { FindOptions } from 'src/core/domain/common/find-options';
+import { FindOptions } from 'src/common/types/find-options';
 
 export class StateRepositoryImpl implements StateRepository {
   constructor(

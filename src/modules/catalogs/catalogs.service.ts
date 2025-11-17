@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStateDto } from './dto/create-state.dto';
-import type { StateRepository } from '../../core/domain/catalogs/state.repository';
-import { FindOptions } from 'src/core/domain/common/find-options';
+import type { StateRepository } from '../../common/types/catalogs/state.repository';
+import { FindOptions } from 'src/common/types/find-options';
 
 @Injectable()
 export class CatalogsService {

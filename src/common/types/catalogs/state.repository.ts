@@ -1,5 +1,5 @@
-import { State } from './state.model';
-import { FindOptions } from '../common/find-options';
+import { State } from '../../../core/models/state.model';
+import { FindOptions } from '../find-options';
 
 export interface StateRepository {
   findAll(options?: FindOptions): Promise<{ data: State[]; total: number }>;

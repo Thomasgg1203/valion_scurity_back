@@ -1,4 +1,4 @@
-import { State } from '../../../core/domain/catalogs/state.model';
+import { State } from '../../../core/models/state.model';
 import { StateEntity } from '../../database/entities/state.entity';
 
 export class StateMapper {
