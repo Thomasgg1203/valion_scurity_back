@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
-import { Carrier } from '../../../modules/partners/entities/carrier.entity';
+import { CarrierEntity } from '../entities/carrier.entity';
+
 
 /**
  * 🌱 Seeder for Carriers (Insurance Companies)
@@ -71,16 +72,16 @@ export const seedCarriers = async (dataSource: DataSource) => {
     let skippedCount = 0;
 
     for (const carrier of carriersToInsert) {
-      const exists = await manager.findOne(Carrier, {
+      const exists = await manager.findOne(CarrierEntity, {
         where: { name: carrier.name },
       });
 
       if (!exists) {
         await manager.save(
-          Carrier,
-          manager.create(Carrier, {
+          CarrierEntity,
+          manager.create(CarrierEntity, {
             name: carrier.name,
-            deleted: false,
+            createdAt: new Date()
           }),
         );
         insertedCount++;

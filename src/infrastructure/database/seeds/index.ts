@@ -4,17 +4,22 @@ import { seedStates } from './seed.states';
 import { seedMGAs } from './seed.mga';
 import { seedCarriers } from './seed.carrier';
 import { seedMgaCarriers } from './seed.mga-carrier';
+import { seedLineOfBusiness } from './seed.line-of-business';
+import { seedCoverages } from './seed.coverage';
+import { seedCommodities } from './seed.comodit';
 import { PermissionEntity } from '../entities/permission.entity';
 import { RoleEntity } from '../entities/role.entity';
 import { RolePermissionEntity } from '../entities/role-permission.entity';
 import { UserEntity } from '../entities/user.entity';
 import { config } from 'dotenv';
-import { State } from '../../../modules/catalogs/entities/state.entity';
-import { Mga } from '../../../modules/partners/entities/mga.entity';
-import { Carrier } from '../../../modules/partners/entities/carrier.entity';
-import { MgaCarrier } from '../../../modules/partners/entities/mga-carrier.entity';
+import { StateEntity } from '../entities/state.entity';
+import { MgaCarrierEntity } from '../entities/mga-carrier.entity';
+import { MgaEntity } from '../entities/mga.entity';
+import { CarrierEntity } from '../entities/carrier.entity';
+import { LineOfBusinessEntity } from '../entities/line-of-business.entity';
+import { CoverageEntity } from '../entities/coverage.entity';
+import { CommodityEntity } from '../entities/commodity.entity';
 
-;
 config();
 
 (async () => {
@@ -26,7 +31,19 @@ config();
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     ssl: process.env.DB_SSL === 'true',
-    entities: [PermissionEntity, RoleEntity, RolePermissionEntity, UserEntity, State, Mga, Carrier, MgaCarrier],
+    entities: [
+      PermissionEntity,
+      RoleEntity,
+      RolePermissionEntity,
+      UserEntity,
+      StateEntity,
+      MgaEntity,
+      CarrierEntity,
+      MgaCarrierEntity,
+      LineOfBusinessEntity,
+      CoverageEntity,
+      CommodityEntity,
+    ],
   });
 
   try {
@@ -35,6 +52,9 @@ config();
     await seedMGAs(dataSource);
     await seedCarriers(dataSource);
     await seedMgaCarriers(dataSource);
+    await seedLineOfBusiness(dataSource);
+    await seedCoverages(dataSource);
+    await seedCommodities;
   } catch (err) {
     console.error('❌ Error running seeder:', err);
   } finally {

@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
-import { Mga } from '../../../modules/partners/entities/mga.entity';
+import { MgaEntity } from '../entities/mga.entity';
+
 
 /**
  * 🌱 Seeder for MGAs (Managing General Agents)
@@ -38,16 +39,16 @@ export const seedMGAs = async (dataSource: DataSource) => {
     let skippedCount = 0;
 
     for (const mga of mgasToInsert) {
-      const exists = await manager.findOne(Mga, {
+      const exists = await manager.findOne(MgaEntity, {
         where: { name: mga.name },
       });
 
       if (!exists) {
         await manager.save(
-          Mga,
-          manager.create(Mga, {
+          MgaEntity,
+          manager.create(MgaEntity, {
             name: mga.name,
-            deleted: false,
+            createdAt: new Date()
           }),
         );
         insertedCount++;

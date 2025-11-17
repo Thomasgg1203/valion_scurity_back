@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { MgaCarrier } from '../../../modules/partners/entities/mga-carrier.entity';
-import { Mga } from '../../../modules/partners/entities/mga.entity';
-import { Carrier } from '../../../modules/partners/entities/carrier.entity';
+import { MgaEntity } from '../entities/mga.entity';
+import { CarrierEntity } from '../entities/carrier.entity';
+import { MgaCarrierEntity } from '../entities/mga-carrier.entity';
 
 /**
  * 🌱 Seeder for MGA-Carrier relationships
@@ -98,7 +98,7 @@ export const seedMgaCarriers = async (dataSource: DataSource) => {
     for (const rel of relationshipsToInsert) {
       try {
         // Buscar MGA
-        const mgaEntity = await manager.findOne(Mga, {
+        const mgaEntity = await manager.findOne(MgaEntity, {
           where: { name: rel.mga },
         });
 
@@ -109,7 +109,7 @@ export const seedMgaCarriers = async (dataSource: DataSource) => {
         }
 
         // Buscar Carrier
-        const carrierEntity = await manager.findOne(Carrier, {
+        const carrierEntity = await manager.findOne(CarrierEntity, {
           where: { name: rel.carrier },
         });
 
@@ -120,7 +120,7 @@ export const seedMgaCarriers = async (dataSource: DataSource) => {
         }
 
         // Verificar si ya existe la relación
-        const exists = await manager.findOne(MgaCarrier, {
+        const exists = await manager.findOne(MgaCarrierEntity, {
           where: {
             mga: { id: mgaEntity.id },
             carrier: { id: carrierEntity.id },
@@ -129,13 +129,13 @@ export const seedMgaCarriers = async (dataSource: DataSource) => {
 
         if (!exists) {
           await manager.save(
-            MgaCarrier,
-            manager.create(MgaCarrier, {
+            MgaCarrierEntity,
+            manager.create(MgaCarrierEntity, {
               mga: mgaEntity,
               carrier: carrierEntity,
               concat_name: `${rel.mga} - ${rel.carrier}`,
               is_active: true,
-              deleted: false,
+              createdAt: new Date(),
             }),
           );
           insertedCount++;

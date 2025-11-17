@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
-import { State } from '../../../modules/catalogs/entities/state.entity';
+import { StateEntity } from '../entities/state.entity';
+
 
 export const seedStates = async (dataSource: DataSource) => {
   console.log('⚙️ Starting states seeding...');
@@ -52,17 +53,17 @@ export const seedStates = async (dataSource: DataSource) => {
     let skippedCount = 0;
 
     for (const state of statesToInsert) {
-      const exists = await manager.findOne(State, {
+      const exists = await manager.findOne(StateEntity, {
         where: { code: state.code },
       });
 
       if (!exists) {
         await manager.save(
-          State,
-          manager.create(State, {
+          StateEntity,
+          manager.create(StateEntity, {
             code: state.code,
             name: state.name,
-            deleted: false,
+            createdAt: new Date()
           }),
         );
         insertedCount++;

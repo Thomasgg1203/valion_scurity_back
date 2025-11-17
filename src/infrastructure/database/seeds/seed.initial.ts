@@ -85,6 +85,7 @@ export const seedInitialData = async (dataSource: DataSource) => {
       superAdmin = manager.create(RoleEntity, {
         name: 'SuperAdmin',
         description: 'Full system access with all permissions',
+        createdAt: new Date(),
       });
       await manager.save(RoleEntity, superAdmin);
       console.log('✅ SuperAdmin role created.');
