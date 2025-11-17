@@ -6,7 +6,6 @@ import { seedCarriers } from './seed.carrier';
 import { seedMgaCarriers } from './seed.mga-carrier';
 import { seedLineOfBusiness } from './seed.line-of-business';
 import { seedCoverages } from './seed.coverage';
-import { seedCommodities } from './seed.comodit';
 import { PermissionEntity } from '../entities/permission.entity';
 import { RoleEntity } from '../entities/role.entity';
 import { RolePermissionEntity } from '../entities/role-permission.entity';
@@ -18,7 +17,7 @@ import { MgaEntity } from '../entities/mga.entity';
 import { CarrierEntity } from '../entities/carrier.entity';
 import { LineOfBusinessEntity } from '../entities/line-of-business.entity';
 import { CoverageEntity } from '../entities/coverage.entity';
-import { CommodityEntity } from '../entities/commodity.entity';
+
 
 config();
 
@@ -42,7 +41,6 @@ config();
       MgaCarrierEntity,
       LineOfBusinessEntity,
       CoverageEntity,
-      CommodityEntity,
     ],
   });
 
@@ -54,7 +52,6 @@ config();
     await seedMgaCarriers(dataSource);
     await seedLineOfBusiness(dataSource);
     await seedCoverages(dataSource);
-    await seedCommodities;
   } catch (err) {
     console.error('❌ Error running seeder:', err);
   } finally {
