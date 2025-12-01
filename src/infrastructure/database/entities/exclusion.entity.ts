@@ -1,29 +1,26 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
+  Column,
   ManyToOne,
-  JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  JoinColumn,
   DeleteDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { RoleEntity } from './role.entity';
+import { MgaCarrierEntity } from './mga-carrier.entity';
 
-@Entity({ name: 'users' })
-export class UserEntity {
+@Entity({ name: 'exclusion' })
+export class ExclusionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
-  email: string;
+  @ManyToOne(() => MgaCarrierEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'mga_carrier_id' })
+  mgaCarrier: MgaCarrierEntity;
 
-  @Column()
-  password: string;
-
-  @ManyToOne(() => RoleEntity, (r) => r.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
-  role: RoleEntity;
+  @Column({ type: 'text', nullable: true })
+  reason?: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -1,31 +1,22 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
-  OneToMany,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
-import { RolePermissionEntity } from './role-permission.entity';
-import { UserEntity } from './user.entity';
 
-@Entity({ name: 'roles' })
-export class RoleEntity {
+@Entity({ name: 'commodity' })
+export class CommodityEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ length: 150, unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string;
-
-  @OneToMany(() => RolePermissionEntity, (rp) => rp.role)
-  rolePermissions: RolePermissionEntity[];
-
-  @OneToMany(() => UserEntity, (u) => u.role)
-  users: UserEntity[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

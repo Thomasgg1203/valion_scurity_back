@@ -1,31 +1,27 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
-  OneToMany,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
-import { RolePermissionEntity } from './role-permission.entity';
-import { UserEntity } from './user.entity';
+import { GuidelineFieldEntity } from './guideline-field.entity';
 
-@Entity({ name: 'roles' })
-export class RoleEntity {
+@Entity({ name: 'guideline_category' })
+export class GuidelineCategoryEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ length: 100, unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @OneToMany(() => RolePermissionEntity, (rp) => rp.role)
-  rolePermissions: RolePermissionEntity[];
-
-  @OneToMany(() => UserEntity, (u) => u.role)
-  users: UserEntity[];
+  @Column({ name: 'order_index', nullable: true })
+  orderIndex?: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -35,4 +31,7 @@ export class RoleEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
+
+  @OneToMany(() => GuidelineFieldEntity, (field) => field.category)
+  fields: GuidelineFieldEntity[];
 }
