@@ -7,6 +7,7 @@ import { CommodityEntity } from '../../infrastructure/database/entities/commodit
 import { LineOfBusinessEntity } from '../../infrastructure/database/entities/line-of-business.entity';
 import { CoverageEntity } from '../../infrastructure/database/entities/coverage.entity';
 import { LimitUnitEntity } from '../../infrastructure/database/entities/limit-unit.entity';
+import { StateRepositoryImpl } from 'src/infrastructure/repositories/catalogs/state.repository.impl';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { LimitUnitEntity } from '../../infrastructure/database/entities/limit-un
     ]),
   ],
   controllers: [CatalogsController],
-  providers: [CatalogsService],
+  providers: [CatalogsService, { provide: 'StateRepository', useClass: StateRepositoryImpl }],
   exports: [CatalogsService, TypeOrmModule],
 })
 export class CatalogsModule {}
