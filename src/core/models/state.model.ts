@@ -4,5 +4,5 @@ export interface State {
   name: string;
   createdAt: Date;
   updatedAt?: Date;
-  deletedAt?: Date | null;
+  deletedAt?: Date;
 }

@@ -4,7 +4,7 @@ export class Role {
   description?: string;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt?: Date | null;
+  deletedAt?: Date;
 
   constructor(partial: Partial<Role>) {
     Object.assign(this, partial);
