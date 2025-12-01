@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 import { StateRepository } from '../../../common/types/catalogs/state.repository';
 import { State } from '../../../core/models/state.model';
 import { StateEntity } from '../../database/entities/state.entity';
@@ -13,18 +13,24 @@ export class StateRepositoryImpl implements StateRepository {
   ) {}
 
   async findAll(options: FindOptions = {}): Promise<{ data: State[]; total: number }> {
-    const query = this.repo.createQueryBuilder('state');
+    const page = options.page && options.page > 0 ? options.page : 1;
+    const limit = options.limit && options.limit > 0 ? options.limit : 10;
+    const offset = (page - 1) * limit;
 
-    if (options.search) {
-      query.andWhere('LOWER(state.name) LIKE LOWER(:search)', {
-        search: `%${options.search}%`,
-      });
+    const where: FindOptionsWhere<State> = {
+      deletedAt: IsNull(),
+    };
+
+    if (options.search?.trim()) {
+      where.name = ILike(`%${options.search.trim()}%`);
     }
 
-    if (options.page !== undefined) query.skip(options.page);
-    if (options.limit !== undefined) query.take(options.limit);
-
-    const [entities, total] = await query.getManyAndCount();
+    const [entities, total] = await this.repo.findAndCount({
+      where,
+      skip: offset,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
 
     return {
       data: entities.map(StateMapper.toDomain),
@@ -33,7 +39,7 @@ export class StateRepositoryImpl implements StateRepository {
   }
 
   async findById(id: string): Promise<State | null> {
-    const entity = await this.repo.findOne({ where: { id } });
+    const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
     return entity ? StateMapper.toDomain(entity) : null;
   }
 

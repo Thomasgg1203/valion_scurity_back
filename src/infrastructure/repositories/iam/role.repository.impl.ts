@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, IsNull } from 'typeorm';
 
@@ -26,17 +26,22 @@ export class RoleRepositoryImpl implements RoleRepository {
     });
   }
 
+  private escapeILike(search: string): string {
+    return search.replace(/[%_\\]/g, (char) => `\\${char}`);
+  }
+
   async findAll(options?: FindOptions): Promise<{ data: Role[]; total: number }> {
     const page = options?.page ?? 1;
     const limit = options?.limit ?? 10;
     const search = options?.search?.trim();
 
     const skip = (page - 1) * limit;
+    const sanitized = search ? this.escapeILike(search) : null;
 
     const [rows, total] = await this.repo.findAndCount({
       where: {
         deletedAt: IsNull(),
-        name: search ? ILike(`%${search}%`) : undefined,
+        name: sanitized ? ILike(`%${sanitized}%`) : undefined,
       },
       relations: ['rolePermissions', 'rolePermissions.permission'],
       order: { createdAt: 'DESC' },
@@ -69,19 +74,27 @@ export class RoleRepositoryImpl implements RoleRepository {
   }
 
   async update(id: string, data: Partial<Role>): Promise<Role> {
-    const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
+    const entity = await this.repo.findOne({
+      where: { id, deletedAt: IsNull() },
+    });
+
     if (!entity) {
-      throw new Error('Role not found');
+      throw new NotFoundException(`Role with id ${id} not found`);
     }
 
-    entity.name = data.name ?? entity.name;
-    entity.description = data.description ?? entity.description;
+    Object.assign(entity, data);
 
     const saved = await this.repo.save(entity);
     return this.toModel(saved);
   }
 
-  async softDelete(id: string): Promise<void> {
-    await this.repo.softDelete(id);
+  async softDelete(id: string): Promise<{ deleted: boolean }> {
+    const result = await this.repo.softDelete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Role with id ${id} not found`);
+    }
+
+    return { deleted: true };
   }
 }

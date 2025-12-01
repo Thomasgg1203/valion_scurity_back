@@ -35,15 +35,11 @@ export class IamService {
   }
 
   async updateRole(id: string, data: UpdateRoleDto) {
-    try {
-      return await this.roleRepo.update(id, data);
-    } catch {
-      throw new NotFoundException('Role not found');
-    }
+    return this.roleRepo.update(id, data);
   }
 
   async deleteRole(id: string) {
-    await this.roleRepo.softDelete(id);
+    return this.roleRepo.softDelete(id);
   }
 
   findAllPermissions() {

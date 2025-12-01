@@ -6,5 +6,5 @@ export interface RoleRepository {
   findById(id: string): Promise<Role | null>;
   create(data: Partial<Role>): Promise<Role>;
   update(id: string, data: Partial<Role>): Promise<Role>;
-  softDelete(id: string): Promise<void>;
+  softDelete(id: string): Promise<{ deleted: boolean }>;
 }
