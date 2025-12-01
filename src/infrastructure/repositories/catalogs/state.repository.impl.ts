@@ -5,7 +5,9 @@ import { State } from '../../../core/models/state.model';
 import { StateEntity } from '../../database/entities/state.entity';
 import { StateMapper } from '../../mappers/catalogs/state.mapper';
 import { FindOptions } from 'src/common/types/find-options';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class StateRepositoryImpl implements StateRepository {
   constructor(
     @InjectRepository(StateEntity)
