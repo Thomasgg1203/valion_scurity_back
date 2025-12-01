@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import { CarrierEntity } from '../entities/carrier.entity';
 
-
 /**
  * 🌱 Seeder for Carriers (Insurance Companies)
  * - Inserts base carrier partners
@@ -21,7 +20,7 @@ export const seedCarriers = async (dataSource: DataSource) => {
       { name: 'NATIONAL INDEMNITY COMPANY' },
       { name: 'NORTHLAND' },
       { name: 'OCCIDENTAL FIRE & CASUALTY' },
-      { name: 'CANAL'},
+      { name: 'CANAL' },
       { name: 'ADMITTED PROGRAM' },
       { name: 'NON ADMITTED PROGRAM' },
       { name: 'MULTIPLE CARRIERS' },
@@ -81,7 +80,7 @@ export const seedCarriers = async (dataSource: DataSource) => {
           CarrierEntity,
           manager.create(CarrierEntity, {
             name: carrier.name,
-            createdAt: new Date()
+            createdAt: new Date(),
           }),
         );
         insertedCount++;
@@ -90,6 +89,8 @@ export const seedCarriers = async (dataSource: DataSource) => {
       }
     }
 
-    console.log(`✅ Carriers seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`);
+    console.log(
+      `✅ Carriers seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`,
+    );
   });
 };

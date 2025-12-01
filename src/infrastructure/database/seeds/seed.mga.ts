@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import { MgaEntity } from '../entities/mga.entity';
 
-
 /**
  * 🌱 Seeder for MGAs (Managing General Agents)
  * - Inserts base MGA partners
@@ -48,7 +47,7 @@ export const seedMGAs = async (dataSource: DataSource) => {
           MgaEntity,
           manager.create(MgaEntity, {
             name: mga.name,
-            createdAt: new Date()
+            createdAt: new Date(),
           }),
         );
         insertedCount++;

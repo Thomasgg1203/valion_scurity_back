@@ -17,7 +17,12 @@ import { MgaEntity } from '../entities/mga.entity';
 import { CarrierEntity } from '../entities/carrier.entity';
 import { LineOfBusinessEntity } from '../entities/line-of-business.entity';
 import { CoverageEntity } from '../entities/coverage.entity';
-
+import { LimitUnitEntity } from '../entities/limit-unit.entity';
+import { seedLimitUnits } from './seed.limit_unit';
+import { seedCommodities } from './seed.commodity-no-accept';
+import { CommodityEntity } from '../entities/commodity.entity';
+import { seedCommodityNoAccept } from './seed.appetite_commodity';
+import { AppetiteCommodityEntity } from '../entities/appetite-commodity.entity';
 
 config();
 
@@ -41,6 +46,9 @@ config();
       MgaCarrierEntity,
       LineOfBusinessEntity,
       CoverageEntity,
+      LimitUnitEntity,
+      CommodityEntity,
+      AppetiteCommodityEntity,
     ],
   });
 
@@ -52,6 +60,9 @@ config();
     await seedMgaCarriers(dataSource);
     await seedLineOfBusiness(dataSource);
     await seedCoverages(dataSource);
+    await seedLimitUnits(dataSource);
+    await seedCommodities(dataSource);
+    await seedCommodityNoAccept(dataSource);
   } catch (err) {
     console.error('❌ Error running seeder:', err);
   } finally {

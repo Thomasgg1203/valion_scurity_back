@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import { StateEntity } from '../entities/state.entity';
 
-
 export const seedStates = async (dataSource: DataSource) => {
   console.log('⚙️ Starting states seeding...');
 
@@ -63,7 +62,7 @@ export const seedStates = async (dataSource: DataSource) => {
           manager.create(StateEntity, {
             code: state.code,
             name: state.name,
-            createdAt: new Date()
+            createdAt: new Date(),
           }),
         );
         insertedCount++;

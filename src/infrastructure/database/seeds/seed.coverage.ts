@@ -23,16 +23,15 @@ export const seedCoverages = async (dataSource: DataSource) => {
         code: 'CSL',
         name: 'Auto Liability (Combined Single Limit)',
         description: 'Auto liability, covers bodily injury and property damage.',
-        lobCode: 'DRYVAN', // Vehículo tipo dry van = línea base de auto
+        lobCode: 'DRYVAN',
       },
 
       // ==== MOTOR TRUCK CARGO ====
       {
         code: 'MTC',
         name: 'Motor Truck Cargo',
-        description:
-          'Protects the cargo against theft or collision during transport.',
-        lobCode: 'FRAC_SAND', // Tipo de negocio de carga
+        description: 'Protects the cargo against theft or collision during transport.',
+        lobCode: 'FRAC_SAND',
       },
 
       // ==== PHYSICAL DAMAGE ====
@@ -48,8 +47,7 @@ export const seedCoverages = async (dataSource: DataSource) => {
       {
         code: 'GL',
         name: 'General Liability',
-        description:
-          'Similar to auto liability but for private property operations.',
+        description: 'Similar to auto liability but for private property operations.',
         lobCode: 'INTERMODAL',
       },
 
@@ -57,8 +55,7 @@ export const seedCoverages = async (dataSource: DataSource) => {
       {
         code: 'TI',
         name: 'Trailer Interchange (Reefer)',
-        description:
-          'Covers any trailer attached to the insured truck, including reefer units.',
+        description: 'Covers any trailer attached to the insured truck, including reefer units.',
         lobCode: 'REEFER',
       },
 
@@ -83,8 +80,7 @@ export const seedCoverages = async (dataSource: DataSource) => {
       {
         code: 'UMBRELLA',
         name: 'Umbrella Coverage',
-        description:
-          'Extends all coverages providing broader liability protection.',
+        description: 'Extends all coverages providing broader liability protection.',
         lobCode: 'DNA',
       },
 
@@ -92,8 +88,7 @@ export const seedCoverages = async (dataSource: DataSource) => {
       {
         code: 'EXCESS',
         name: 'Excess Liability',
-        description:
-          'Extension of a single coverage with higher liability limits.',
+        description: 'Extension of a single coverage with higher liability limits.',
         lobCode: 'DNA',
       },
 
@@ -141,6 +136,8 @@ export const seedCoverages = async (dataSource: DataSource) => {
       }
     }
 
-    console.log(`✅ Coverage seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`);
+    console.log(
+      `✅ Coverage seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`,
+    );
   });
 };

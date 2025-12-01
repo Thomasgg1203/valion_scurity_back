@@ -43,7 +43,8 @@ export const seedLineOfBusiness = async (dataSource: DataSource) => {
       {
         code: 'MIXER',
         name: 'Mixer',
-        description: 'Truck used for mixing and transporting cement or other construction materials.',
+        description:
+          'Truck used for mixing and transporting cement or other construction materials.',
       },
       {
         code: 'INTERMODAL',
@@ -100,6 +101,8 @@ export const seedLineOfBusiness = async (dataSource: DataSource) => {
       }
     }
 
-    console.log(`✅ Line of Business seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`);
+    console.log(
+      `✅ Line of Business seeding completed: ${insertedCount} inserted, ${skippedCount} skipped.`,
+    );
   });
 };
