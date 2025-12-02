@@ -21,8 +21,20 @@ import { LimitUnitEntity } from '../entities/limit-unit.entity';
 import { seedLimitUnits } from './seed.limit_unit';
 import { seedCommodities } from './seed.commodity-no-accept';
 import { CommodityEntity } from '../entities/commodity.entity';
-import { seedCommodityNoAccept } from './seed.appetite_commodity';
 import { AppetiteCommodityEntity } from '../entities/appetite-commodity.entity';
+import { seedGuidelineCategories } from './seed.guidelineCategories';
+import { GuidelineCategoryEntity } from '../entities/guideline_category.entity';
+import { seedGuidelineFields } from './seed.guideline-field';
+import { GuidelineFieldEntity } from '../entities/guideline-field.entity';
+import { seedGuidelineRules } from './seed.guideline-rule';
+import { GuidelineRuleEntity } from '../entities/guideline-rule.entity';
+import { seedStateRules } from './seed.state_rule';
+import { StateRuleEntity } from '../entities/state-rule.entity';
+import { seedExclusions } from './seed.exclusion';
+import { ExclusionEntity } from '../entities/exclusion.entity';
+import { seedAppetiteCommodity } from './seed.appetite_commodity';
+import { seedQueryPresets } from './seed.query_preset';
+import { QueryPresetEntity } from '../entities/query-preset.entity';
 
 config();
 
@@ -49,6 +61,12 @@ config();
       LimitUnitEntity,
       CommodityEntity,
       AppetiteCommodityEntity,
+      GuidelineCategoryEntity,
+      GuidelineFieldEntity,
+      GuidelineRuleEntity,
+      StateRuleEntity,
+      ExclusionEntity,
+      QueryPresetEntity,
     ],
   });
 
@@ -62,7 +80,13 @@ config();
     await seedCoverages(dataSource);
     await seedLimitUnits(dataSource);
     await seedCommodities(dataSource);
-    await seedCommodityNoAccept(dataSource);
+    await seedGuidelineCategories(dataSource);
+    await seedGuidelineFields(dataSource);
+    await seedGuidelineRules(dataSource);
+    await seedStateRules(dataSource);
+    await seedExclusions(dataSource);
+    await seedAppetiteCommodity(dataSource);
+    await seedQueryPresets(dataSource);
   } catch (err) {
     console.error('❌ Error running seeder:', err);
   } finally {
