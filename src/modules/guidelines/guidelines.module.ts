@@ -11,6 +11,7 @@ import { GuidelineRuleEntity } from 'src/infrastructure/database/entities/guidel
 import { StateRuleEntity } from 'src/infrastructure/database/entities/state-rule.entity';
 import { AppetiteCommodityEntity } from 'src/infrastructure/database/entities/appetite-commodity.entity';
 import { ExclusionEntity } from 'src/infrastructure/database/entities/exclusion.entity';
+import { QueryPresetEntity } from 'src/infrastructure/database/entities/query-preset.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ExclusionEntity } from 'src/infrastructure/database/entities/exclusion.
       StateRuleEntity,
       AppetiteCommodityEntity,
       ExclusionEntity,
+      QueryPresetEntity,
     ]),
     PartnersModule,
     CatalogsModule,

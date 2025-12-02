@@ -1,35 +1,35 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "nodenext",   
+    "module": "nodenext",
     "moduleResolution": "nodenext",
 
     "resolvePackageJsonExports": true,
-    "esModuleInterop": true,         
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    "emitDecoratorMetadata": true,    
-    "experimentalDecorators": true,  
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
 
-    "isolatedModules": true,     
-    "declaration": true,               
-    "removeComments": true,       
-    "outDir": "./dist",                 
-    "baseUrl": "./",                   
-    "incremental": true,                
-    "skipLibCheck": true,               
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
 
-    "strict": true,               
-    "strictNullChecks": true,       
+    "strict": true,
+    "strictNullChecks": true,
     "strictPropertyInitialization": false,
 
-    "forceConsistentCasingInFileNames": true, 
-    "types": ["node"],                      
-    "noImplicitAny": true,                 
-    "noFallthroughCasesInSwitch": true,    
-    "strictBindCallApply": true            
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "jest"],
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictBindCallApply": true
   },
 
-  "include": ["src/**/*"],                  
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }
