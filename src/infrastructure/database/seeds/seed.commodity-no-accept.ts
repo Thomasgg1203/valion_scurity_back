@@ -151,7 +151,7 @@ export const seedCommodities = async (dataSource: DataSource) => {
       { name: 'COILS', description: 'Shipment of metal or material coils.' },
       { name: 'FRAC WATER', description: 'Transport of water used in fracking operations.' },
       {
-        name: 'LANDSCAPPING EQUIPMENT',
+        name: 'LANDSCAPING EQUIPMENT',
         description: 'Transport of landscaping tools and machinery.',
       },
       {
@@ -166,7 +166,7 @@ export const seedCommodities = async (dataSource: DataSource) => {
       { name: 'EXOTIC ANIMALS', description: 'Transport of exotic or rare animals.' },
       { name: 'ZOO ANIMALS', description: 'Shipment of animals for zoo operations.' },
       {
-        name: 'AUTOS­ ANTIQUE VEHICLES',
+        name: 'AUTOS - ANTIQUE VEHICLES',
         description: 'Transport of antique or collectible autos.',
       },
       { name: 'FUEL ROD', description: 'Shipment of nuclear fuel rods.' },

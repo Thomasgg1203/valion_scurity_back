@@ -15,7 +15,7 @@ export const ormConfig: DataSourceOptions = {
   synchronize: false,
   logging: false,
 
-  entities: [path.join(basePath, '/**/*.entity{.ts,.js}')],
+  entities: [path.join(basePath, '/infrastructure/database/entities/*.entity{.ts,.js}')],
 
   migrations: [path.join(basePath, '/infrastructure/database/migrations/*{.ts,.js}')],
 };

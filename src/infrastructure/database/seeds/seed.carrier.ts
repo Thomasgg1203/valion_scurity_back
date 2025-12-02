@@ -15,7 +15,6 @@ export const seedCarriers = async (dataSource: DataSource) => {
       { name: 'BULLDOG' },
       { name: 'STAR MUTUAL' },
       { name: 'CANOPIUS' },
-      { name: 'CANAL' },
       { name: 'CANAL TEST DRIVE' },
       { name: 'NATIONAL INDEMNITY COMPANY' },
       { name: 'NORTHLAND' },
