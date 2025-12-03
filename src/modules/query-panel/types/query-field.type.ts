@@ -1,30 +1,32 @@
-export type QueryFieldType = 'string' | 'number' | 'boolean' | 'select';
+import { Operator } from './operators.type';
+
+export type QueryFieldType = 'string' | 'number' | 'boolean' | 'select' | 'multiselect';
 
 export class QueryFieldOptionDto {
-  value: string;
+  value: string | number | boolean;
   label: string;
 }
 
 export class QueryFieldDto {
-  /** Clave interna usada en el frontend y en el builder (ej: state, commodity, lob) */
+  /** Clave interna usada en el frontend y en el builder (ej: state, commodity, lob). */
   key: string;
 
-  /** Etiqueta legible para el usuario */
+  /** Etiqueta legible para el usuario. */
   label: string;
 
-  /** Tipo de dato */
+  /** Tipo de dato. */
   type: QueryFieldType;
 
-  /** Operadores permitidos (=, !=, IN, etc.) */
-  operators: string[];
+  /** Operadores permitidos (=, !=, IN, etc.). */
+  operators: Operator[];
 
-  /** Grupo lógico (para agrupar en UI: Location, Risk, Appetite, etc.) */
+  /** Grupo logico (para agrupar en UI: Location, Risk, Appetite, etc.). */
   category: string;
 
-  /** De dónde viene el dato (tabla/entidad base) */
+  /** Fuente de dato (tabla/entidad base). */
   source: string;
 
-  /** Opciones cuando el campo es tipo select (Estados, Commodities, etc.) */
+  /** Opciones cuando el campo es tipo select (Estados, Commodities, etc.). */
   options?: QueryFieldOptionDto[];
 }
 
