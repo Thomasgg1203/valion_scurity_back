@@ -38,6 +38,33 @@ import {
 } from './query-builder/apply-filters';
 import { loadQueryData } from './query-builder/build-base-query';
 
+const ALLOWED_FIELDS = new Set([
+  'vehicle_year',
+  'vehicle_type',
+  'unit_count',
+  'is_trailer',
+  'driver_age',
+  'years_experience',
+  'has_cdl',
+  'radius',
+  'operation_states',
+  'years_in_business',
+  'authority_active',
+  'commodity',
+  'commodity_type',
+  'is_hazmat',
+  'temp_control',
+  'requested_liability_limit',
+  'requested_coverages',
+  'accidents_last_3_years',
+  'violations_count',
+  'csa_score',
+  'company_name',
+  'dot_number',
+  'mc_number',
+  'state',
+]);
+
 @Injectable()
 export class QueryPanelService {
   constructor(
@@ -125,6 +152,15 @@ export class QueryPanelService {
       operators: ['IN', 'NOT_IN', '='],
       options: mapOptions(commodities),
     });
+    fields.push({
+      key: 'commodity_type',
+      label: 'Commodity Type',
+      type: 'select',
+      category: 'Commodity & Cargo',
+      source: 'guideline_field',
+      operators: ['IN', 'NOT_IN', '='],
+      options: mapOptions(commodities),
+    });
 
     fields.push({
       key: 'lob',
@@ -205,11 +241,13 @@ export class QueryPanelService {
    */
   async runQuery(dto: RunQueryDto): Promise<QueryPanelResultDto> {
     const presetFilters = dto.presetId ? await this.loadPresetFilters(dto.presetId) : [];
-    const normalizedFilters = normalizeFilters([
-      ...presetFilters,
-      ...this.injectTopLevelFilters(dto),
-      ...(dto.filters || []),
-    ]);
+    const normalizedFilters = normalizeFilters(
+      this.filterAllowedFields([
+        ...presetFilters,
+        ...this.injectTopLevelFilters(dto),
+        ...(dto.filters || []),
+      ]),
+    );
     const filtersIndex = buildFilterIndex(normalizedFilters);
 
     const data = await loadQueryData({
@@ -263,7 +301,7 @@ export class QueryPanelService {
         ...stateHits.map((hit) => ({
           ruleId: stateRuleByCarrier.get(mc.id)?.find((r) => r.field?.name === hit.field)?.id,
           type: hit.severity,
-          source: 'state' as const,
+          source: 'state_rule' as const,
           description: hit.comment || `${hit.field} ${hit.operator} ${hit.value}`,
         })),
       ];
@@ -278,12 +316,7 @@ export class QueryPanelService {
         mga: { id: mc.mga?.id, name: mc.mga?.name },
         carrier: { id: mc.carrier?.id, name: mc.carrier?.name },
         state: this.resolveStateInfo(stateFilters, data.states),
-        commodity: commodityFilters[0]
-          ? { id: commodityFilters[0].id, name: commodityFilters[0].name }
-          : undefined,
-        line_of_business: undefined,
-        coverage: undefined,
-        limit_unit: undefined,
+        commodity_type: this.resolveCommodityName(dto, commodityFilters),
         appetite: decision,
         reasons,
         limits: [],
@@ -293,11 +326,12 @@ export class QueryPanelService {
           appetite: appetiteResult,
           guidelineHits,
           stateHits,
+          appetiteHits: appetiteResult.matches,
         },
       };
     });
 
-    return { items, total: items.length };
+    return items;
   }
 
   private resolveGuidelineType(rawType: string): QueryFieldType {
@@ -446,20 +480,6 @@ export class QueryPanelService {
         ],
       },
       {
-        key: 'operation_scope',
-        label: 'Operation Scope',
-        type: 'select',
-        category: 'Operation Details',
-        source: 'guideline_field',
-        operators: ['=', 'IN', 'NOT_IN'],
-        options: [
-          { value: 'STATE', label: 'State' },
-          { value: 'OUT OF STATE', label: 'Out of State' },
-          { value: 'MX', label: 'MX' },
-          { value: 'INTERNATIONAL', label: 'International' },
-        ],
-      },
-      {
         key: 'vehicle_type',
         label: 'Vehicle Type',
         type: 'select',
@@ -467,81 +487,18 @@ export class QueryPanelService {
         source: 'guideline_field',
         operators: ['=', 'IN', 'NOT_IN'],
         options: [
-          { value: 'TRUCK', label: 'Truck' },
-          { value: 'TRAILER', label: 'Trailer' },
-          { value: 'TRACTOR', label: 'Tractor' },
-          { value: 'REEFER', label: 'Reefer' },
-          { value: 'FLATBED', label: 'Flatbed' },
-          { value: 'STRAIGHT', label: 'Straight' },
-          { value: 'CARGO VAN', label: 'Cargo Van' },
-          { value: 'PICKUP', label: 'Pickup' },
-          { value: 'DRYVAN', label: 'Dryvan' },
-          { value: 'CAR HAULER', label: 'Car Hauler' },
-          { value: 'TANK', label: 'Tank' },
-          { value: 'MIXER', label: 'Mixer' },
-          { value: 'INTERMODAL', label: 'Intermodal' },
-          { value: 'HOUSEHOLD GOODS MOVERS', label: 'Household Goods Movers' },
-          { value: 'LIVESTOCK', label: 'Livestock' },
-          { value: 'HAZARDOUS', label: 'Hazardous' },
-          { value: 'TOWING', label: 'Towing' },
+          { value: 'Truck', label: 'Truck' },
+          { value: 'Trailer', label: 'Trailer' },
+          { value: 'Tractor', label: 'Tractor' },
+          { value: 'Reefer', label: 'Reefer' },
+          { value: 'Flatbed', label: 'Flatbed' },
         ],
       },
       {
-        key: 'business_type',
-        label: 'Business Type',
-        type: 'select',
-        category: 'Company Information',
-        source: 'guideline_field',
-        operators: ['=', 'IN', 'NOT_IN'],
-        options: [
-          { value: 'DUMP', label: 'Dump' },
-          { value: 'TOWING', label: 'Towing' },
-          { value: 'DOES NOT APPLY', label: 'Does Not Apply' },
-        ],
-      },
-      {
-        key: 'vehicle_age',
-        label: 'Vehicle Age',
-        type: 'select',
-        category: 'Vehicle Information',
-        source: 'guideline_field',
-        operators: ['=', 'IN', 'NOT_IN'],
-        options: [
-          { value: '0-15', label: '0-15' },
-          { value: '16-20', label: '16-20' },
-          { value: '21-35', label: '21-35' },
-          { value: '36+', label: '36+' },
-        ],
-      },
-      {
-        key: 'uiia',
-        label: 'UIIA',
-        type: 'boolean',
-        category: 'Operation Details',
-        source: 'guideline_field',
-        operators: ['='],
-        options: [
-          { value: true, label: 'Yes' },
-          { value: false, label: 'No' },
-        ],
-      },
-      {
-        key: 'owner_exclusion',
-        label: 'Owner Exclusion',
-        type: 'boolean',
-        category: 'Company Information',
-        source: 'guideline_field',
-        operators: ['='],
-        options: [
-          { value: true, label: 'Yes' },
-          { value: false, label: 'No' },
-        ],
-      },
-      {
-        key: 'power_units',
-        label: 'Power Units',
+        key: 'unit_count',
+        label: 'Unit Count',
         type: 'number',
-        category: 'Operation Details',
+        category: 'Vehicle Information',
         source: 'guideline_field',
         operators: ['=', '!=', '>', '>=', '<', '<='],
       },
@@ -574,10 +531,40 @@ export class QueryPanelService {
   private injectTopLevelFilters(dto: RunQueryDto): QueryFilterDto[] {
     const filters: QueryFilterDto[] = [];
     if (dto.state) filters.push({ field: 'state', operator: '=', value: dto.state });
-    if (dto.commodity) filters.push({ field: 'commodity', operator: '=', value: dto.commodity });
-    if (dto.lobId) filters.push({ field: 'lob', operator: '=', value: dto.lobId });
-    if (dto.coverageId) filters.push({ field: 'coverage', operator: '=', value: dto.coverageId });
-    if (dto.limitUnitId) filters.push({ field: 'limit_unit', operator: '=', value: dto.limitUnitId });
+    if (dto.commodity_type) {
+      filters.push({ field: 'commodity', operator: '=', value: dto.commodity_type });
+      filters.push({ field: 'commodity_type', operator: '=', value: dto.commodity_type });
+    }
+    const pushEq = (field: string, value: unknown) =>
+      filters.push({ field, operator: '=', value: value as any });
+
+    const pushIn = (field: string, value: unknown[]) =>
+      filters.push({ field, operator: 'IN', value: value as any });
+
+    if (dto.radius !== undefined) pushEq('radius', dto.radius);
+    if (dto.unit_count !== undefined) pushEq('unit_count', dto.unit_count);
+    if (dto.years_in_business !== undefined) pushEq('years_in_business', dto.years_in_business);
+    if (dto.years_experience !== undefined) pushEq('years_experience', dto.years_experience);
+    if (dto.vehicle_type !== undefined) pushEq('vehicle_type', dto.vehicle_type);
+    if (dto.has_cdl !== undefined) pushEq('has_cdl', dto.has_cdl);
+    if (dto.vehicle_year !== undefined) pushEq('vehicle_year', dto.vehicle_year);
+    if (dto.driver_age !== undefined) pushEq('driver_age', dto.driver_age);
+    if (dto.operation_states?.length) pushIn('operation_states', dto.operation_states);
+    if (dto.authority_active !== undefined) pushEq('authority_active', dto.authority_active);
+    if (dto.is_hazmat !== undefined) pushEq('is_hazmat', dto.is_hazmat);
+    if (dto.temp_control !== undefined) pushEq('temp_control', dto.temp_control);
+    if (dto.requested_liability_limit !== undefined)
+      pushEq('requested_liability_limit', dto.requested_liability_limit);
+    if (dto.requested_coverages?.length)
+      pushIn('requested_coverages', dto.requested_coverages);
+    if (dto.accidents_last_3_years !== undefined)
+      pushEq('accidents_last_3_years', dto.accidents_last_3_years);
+    if (dto.violations_count !== undefined) pushEq('violations_count', dto.violations_count);
+    if (dto.csa_score !== undefined) pushEq('csa_score', dto.csa_score);
+    if (dto.company_name !== undefined) pushEq('company_name', dto.company_name);
+    if (dto.dot_number !== undefined) pushEq('dot_number', dto.dot_number);
+    if (dto.mc_number !== undefined) pushEq('mc_number', dto.mc_number);
+
     return filters;
   }
 
@@ -595,5 +582,15 @@ export class QueryPanelService {
     const code = stateFilters[0];
     const match = states.find((s) => s.code === code || s.id === code);
     return match ? { code: match.code, name: match.name } : { code };
+  }
+
+  private filterAllowedFields(filters: QueryFilterDto[]) {
+    return filters.filter((f) => ALLOWED_FIELDS.has(f.field));
+  }
+
+  private resolveCommodityName(dto: RunQueryDto, commodities: CommodityEntity[]) {
+    if (dto.commodity_type) return dto.commodity_type;
+    if (commodities.length) return commodities[0].name;
+    return undefined;
   }
 }

@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { QueryFilterDto } from './filter.dto';
 
 export class RunQueryDto {
@@ -29,7 +37,7 @@ export class RunQueryDto {
   mgaCarrierId?: string;
 
   @ApiProperty({
-    description: 'Estado (código o id) para filtrar reglas de estado',
+    description: 'Estado (codigo o id) para filtrar reglas de estado',
     required: false,
     example: 'TX',
   })
@@ -38,39 +46,196 @@ export class RunQueryDto {
   state?: string;
 
   @ApiProperty({
-    description: 'Commodity id o nombre',
+    description: 'Commodity type (nombre del commodity en las reglas)',
     required: false,
   })
   @IsOptional()
   @IsString()
-  commodity?: string;
+  commodity_type?: string;
 
   @ApiProperty({
-    description: 'Line of business id',
+    description: 'Vehicle year',
     required: false,
   })
   @IsOptional()
-  @IsUUID()
-  lobId?: string;
+  @IsNumber()
+  @Type(() => Number)
+  vehicle_year?: number;
 
   @ApiProperty({
-    description: 'Coverage id',
+    description: 'Vehicle type',
     required: false,
   })
   @IsOptional()
-  @IsUUID()
-  coverageId?: string;
+  @IsString()
+  vehicle_type?: string;
 
   @ApiProperty({
-    description: 'Limit unit id',
+    description: 'Unit count (power units)',
     required: false,
   })
   @IsOptional()
-  @IsUUID()
-  limitUnitId?: string;
+  @IsNumber()
+  @Type(() => Number)
+  unit_count?: number;
 
   @ApiProperty({
-    description: 'Palabras clave (sin lógica especial aún)',
+    description: 'Is trailer',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_trailer?: boolean;
+
+  @ApiProperty({
+    description: 'Driver age',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  driver_age?: number;
+
+  @ApiProperty({
+    description: 'Years of experience',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  years_experience?: number;
+
+  @ApiProperty({
+    description: 'Has CDL',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  has_cdl?: boolean;
+
+  @ApiProperty({
+    description: 'Radius',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  radius?: number;
+
+  @ApiProperty({
+    description: 'Operation states (codes)',
+    required: false,
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  operation_states?: string[];
+
+  @ApiProperty({
+    description: 'Years in business',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  years_in_business?: number;
+
+  @ApiProperty({
+    description: 'Authority active',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  authority_active?: boolean;
+
+  @ApiProperty({
+    description: 'Is hazmat',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_hazmat?: boolean;
+
+  @ApiProperty({
+    description: 'Temp control',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  temp_control?: boolean;
+
+  @ApiProperty({
+    description: 'Requested liability limit',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  requested_liability_limit?: string;
+
+  @ApiProperty({
+    description: 'Requested coverages',
+    required: false,
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  requested_coverages?: string[];
+
+  @ApiProperty({
+    description: 'Accidents last 3 years',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  accidents_last_3_years?: number;
+
+  @ApiProperty({
+    description: 'Violations count',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  violations_count?: number;
+
+  @ApiProperty({
+    description: 'CSA score',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  csa_score?: number;
+
+  @ApiProperty({
+    description: 'Company name',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  company_name?: string;
+
+  @ApiProperty({
+    description: 'DOT number',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  dot_number?: string;
+
+  @ApiProperty({
+    description: 'MC number',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  mc_number?: string;
+
+  @ApiProperty({
+    description: 'Palabras clave (sin logica especial aun)',
     required: false,
     type: [String],
   })

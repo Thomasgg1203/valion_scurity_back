@@ -1,12 +1,20 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
 import { QueryPanelService } from './query-panel.service';
 import { QueryPanelFieldsResponseDto } from './types/query-field.type';
 import { RunQueryDto } from './dto/run-query.dto';
 import { QueryPanelResultDto } from './types/query-result.type';
+import { QueryPanelResultItemSwaggerDto } from './types/query-result.swagger';
 
 @ApiTags('Query Panel')
+@ApiExtraModels(QueryPanelResultItemSwaggerDto)
 @Controller('query-panel')
 export class QueryPanelController {
   constructor(private readonly service: QueryPanelService) {}
@@ -35,6 +43,13 @@ export class QueryPanelController {
 
   @Post('run')
   @ApiOperation({ summary: 'Ejecutar el motor del Query Panel' })
+  @ApiOkResponse({
+    description: 'Resultados del Query Panel para todas las combinaciones MGA-Carrier',
+    schema: {
+      type: 'array',
+      items: { $ref: getSchemaPath(QueryPanelResultItemSwaggerDto) },
+    },
+  })
   async run(@Body() dto: RunQueryDto): Promise<QueryPanelResultDto> {
     return this.service.runQuery(dto);
   }
