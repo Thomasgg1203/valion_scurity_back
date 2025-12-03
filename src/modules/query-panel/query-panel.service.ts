@@ -26,6 +26,7 @@ import {
   QueryPanelResultDto,
   QueryResultItemDto,
   RuleHitDto,
+  MatchedRuleDto,
 } from './types/query-result.type';
 import { QueryFilterDto } from './dto/filter.dto';
 import { mergeAppetite } from './query-builder/appetite-merge';
@@ -204,7 +205,11 @@ export class QueryPanelService {
    */
   async runQuery(dto: RunQueryDto): Promise<QueryPanelResultDto> {
     const presetFilters = dto.presetId ? await this.loadPresetFilters(dto.presetId) : [];
-    const normalizedFilters = normalizeFilters([...presetFilters, ...(dto.filters || [])]);
+    const normalizedFilters = normalizeFilters([
+      ...presetFilters,
+      ...this.injectTopLevelFilters(dto),
+      ...(dto.filters || []),
+    ]);
     const filtersIndex = buildFilterIndex(normalizedFilters);
 
     const data = await loadQueryData({
@@ -220,12 +225,14 @@ export class QueryPanelService {
     const commodityFilters = this.resolveCommodityFilters(filtersIndex, data.commodities);
     const stateFilters = this.resolveStateFilters(filtersIndex);
 
+    const filteredCarriers = this.filterCarriers(data.carriers, dto);
+
     const appetiteByCarrier = this.groupBy(data.appetite, (a) => a.mgaCarrier.id);
     const guidelineByCarrier = this.groupBy(data.guidelineRules, (r) => r.mgaCarrier.id);
     const stateRuleByCarrier = this.groupBy(data.stateRules, (r) => r.mgaCarrier.id);
     const exclusionByCarrier = this.groupBy(data.exclusions, (e) => e.mgaCarrier.id);
 
-    const items: QueryResultItemDto[] = data.carriers.map((mc) => {
+    const items: QueryResultItemDto[] = filteredCarriers.map((mc) => {
       const appetiteResult = mergeAppetite(commodityFilters, appetiteByCarrier.get(mc.id) ?? []);
       const { guidelineHits, stateHits } = evaluateRules({
         filtersIndex,
@@ -244,15 +251,49 @@ export class QueryPanelService {
         exclusions,
       );
 
+      const matchedRules: MatchedRuleDto[] = [
+        ...guidelineHits.map((hit) => ({
+          ruleId: guidelineByCarrier
+            .get(mc.id)
+            ?.find((r) => r.field?.name === hit.field)?.id,
+          type: hit.severity,
+          source: 'guideline' as const,
+          description: hit.comment || `${hit.field} ${hit.operator} ${hit.value}`,
+        })),
+        ...stateHits.map((hit) => ({
+          ruleId: stateRuleByCarrier.get(mc.id)?.find((r) => r.field?.name === hit.field)?.id,
+          type: hit.severity,
+          source: 'state' as const,
+          description: hit.comment || `${hit.field} ${hit.operator} ${hit.value}`,
+        })),
+      ];
+
+      const reasons = [
+        ...matchedRules.map((r) => r.description),
+        ...exclusions,
+        ...appetiteResult.matches.map((m) => m.notes).filter(Boolean) as string[],
+      ];
+
       return {
-        mgaCarrierId: mc.id,
-        mgaName: mc.mga?.name ?? 'Unknown MGA',
-        carrierName: mc.carrier?.name ?? 'Unknown Carrier',
-        appetite: appetiteResult,
-        guidelineHits,
-        stateHits,
+        mga: { id: mc.mga?.id, name: mc.mga?.name },
+        carrier: { id: mc.carrier?.id, name: mc.carrier?.name },
+        state: this.resolveStateInfo(stateFilters, data.states),
+        commodity: commodityFilters[0]
+          ? { id: commodityFilters[0].id, name: commodityFilters[0].name }
+          : undefined,
+        line_of_business: undefined,
+        coverage: undefined,
+        limit_unit: undefined,
+        appetite: decision,
+        reasons,
+        limits: [],
         exclusions,
-        decision,
+        matchedRules,
+        raw: {
+          appetite: appetiteResult,
+          guidelineHits,
+          stateHits,
+        },
       };
     });
 
@@ -528,5 +569,31 @@ export class QueryPanelService {
         map.set(def.key, def);
       }
     }
+  }
+
+  private injectTopLevelFilters(dto: RunQueryDto): QueryFilterDto[] {
+    const filters: QueryFilterDto[] = [];
+    if (dto.state) filters.push({ field: 'state', operator: '=', value: dto.state });
+    if (dto.commodity) filters.push({ field: 'commodity', operator: '=', value: dto.commodity });
+    if (dto.lobId) filters.push({ field: 'lob', operator: '=', value: dto.lobId });
+    if (dto.coverageId) filters.push({ field: 'coverage', operator: '=', value: dto.coverageId });
+    if (dto.limitUnitId) filters.push({ field: 'limit_unit', operator: '=', value: dto.limitUnitId });
+    return filters;
+  }
+
+  private filterCarriers(carriers: MgaCarrierEntity[], dto: RunQueryDto) {
+    return carriers.filter((mc) => {
+      if (dto.mgaCarrierId && mc.id !== dto.mgaCarrierId) return false;
+      if (dto.mgaId && mc.mga?.id !== dto.mgaId) return false;
+      if (dto.carrierId && mc.carrier?.id !== dto.carrierId) return false;
+      return true;
+    });
+  }
+
+  private resolveStateInfo(stateFilters: string[], states: StateEntity[]) {
+    if (!stateFilters.length) return undefined;
+    const code = stateFilters[0];
+    const match = states.find((s) => s.code === code || s.id === code);
+    return match ? { code: match.code, name: match.name } : { code };
   }
 }

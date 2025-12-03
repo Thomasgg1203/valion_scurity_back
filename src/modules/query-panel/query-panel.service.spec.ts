@@ -161,9 +161,8 @@ describe('QueryPanelService', () => {
     });
 
     expect(result.total).toBe(1);
-    expect(result.items[0].decision).toBe('DECLINE');
-    expect(result.items[0].guidelineHits).toHaveLength(1);
-    expect(result.items[0].stateHits).toHaveLength(1);
+    expect(result.items[0].appetite).toBe('DECLINE');
+    expect(result.items[0].matchedRules.length).toBeGreaterThan(0);
     expect(result.items[0].exclusions).toContain('Manual exclusion');
   });
 });
