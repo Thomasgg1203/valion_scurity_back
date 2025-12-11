@@ -35,6 +35,8 @@ import { ExclusionEntity } from '../entities/exclusion.entity';
 import { seedAppetiteCommodity } from './seed.appetite_commodity';
 import { seedQueryPresets } from './seed.query_preset';
 import { QueryPresetEntity } from '../entities/query-preset.entity';
+import { seedGuidelines } from './guidelines.seed';
+// import { seedAppetite } from './appetite.seed';
 
 config();
 
@@ -87,6 +89,13 @@ config();
     await seedExclusions(dataSource);
     await seedAppetiteCommodity(dataSource);
     await seedQueryPresets(dataSource);
+
+    //
+    // Guidelines (reglas, estados, exclusiones, presets)
+    await seedGuidelines(dataSource);
+
+    // Appetite (commodities + mapa ACCEPT/REFER/DECLINE)
+    // await seedAppetite(dataSource);
   } catch (err) {
     console.error('❌ Error running seeder:', err);
   } finally {

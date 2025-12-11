@@ -1,49 +1,99 @@
 import { DataSource } from 'typeorm';
+import { GuidelineCategoryEntity } from '../entities/guideline_category.entity';
+import { GuidelineFieldEntity } from '../entities/guideline-field.entity';
 
-import { seedGuidelineCategories } from './seed.guidelineCategories';
-import { seedGuidelineFields } from './seed.guideline-field';
-import { seedGuidelineRules } from './seed.guideline-rule';
-import { seedStateRules } from './seed.state_rule';
-import { seedExclusions } from './seed.exclusion';
-import { seedQueryPresets } from './seed.query_preset';
+type RawCategory = {
+  name: string;
+  description: string;
+  orderIndex: number;
+};
+
+type RawField = {
+  categoryName: string;
+  name: string;
+  type: string;
+  possibleValues?: string[];
+};
 
 /**
- * 🌱 Master seed para TODO lo relacionado con GUIDELINES
- *
- * Se apoya en los seeds granulares que ya tienes:
- *  - Categorías de guideline
- *  - Campos
- *  - Reglas (guideline_rule)
- *  - Reglas por estado (state_rule)
- *  - Exclusiones (exclusion)
- *  - Query presets para el panel
+ * Add your real data here (can be generated from Excel).
+ * Do not modify column names; entities use:
+ *  - GuidelineCategoryEntity: name, description, orderIndex
+ *  - GuidelineFieldEntity: name, type, possible_values (text)
  */
-export async function seedGuidelines(dataSource: DataSource): Promise<void> {
-  console.log('🔹 [GuidelinesSeed] Iniciando seed de guidelines…');
+const RAW_GUIDELINE_CATEGORIES: RawCategory[] = [
+  // { name: 'Vehicle Information', description: '...', orderIndex: 1 },
+];
 
-  // 1. Categorías (orden y grupos del Excel)
-  console.log('   ➤ seedGuidelineCategories');
-  await seedGuidelineCategories(dataSource);
+const RAW_GUIDELINE_FIELDS: RawField[] = [
+  // { categoryName: 'Vehicle Information', name: 'vehicle_year', type: 'number' },
+  // { categoryName: 'Vehicle Information', name: 'vehicle_type', type: 'select', possibleValues: ['Truck','Trailer'] },
+];
 
-  // 2. Campos (radius, years in business, commodity, etc.)
-  console.log('   ➤ seedGuidelineFields');
-  await seedGuidelineFields(dataSource);
+export const seedGuidelines = async (dataSource: DataSource) => {
+  console.log('⚙️ Starting guideline categories & fields seeding...');
 
-  // 3. Reglas generales: radius, unit count, commodities, etc.
-  console.log('   ➤ seedGuidelineRules');
-  await seedGuidelineRules(dataSource);
+  await dataSource.transaction(async (manager) => {
+    // Seed categories
+    let catInserted = 0;
+    let catSkipped = 0;
 
-  // 4. Reglas por estado (no CA, solo TX/FL, etc.)
-  console.log('   ➤ seedStateRules');
-  await seedStateRules(dataSource);
+    for (const raw of RAW_GUIDELINE_CATEGORIES) {
+      const exists = await manager.findOne(GuidelineCategoryEntity, { where: { name: raw.name } });
+      if (!exists) {
+        await manager.save(
+          manager.create(GuidelineCategoryEntity, {
+            name: raw.name,
+            description: raw.description,
+            orderIndex: raw.orderIndex,
+          }),
+        );
+        catInserted++;
+      } else {
+        catSkipped++;
+      }
+    }
 
-  // 5. Exclusiones específicas (ej. Oil & Gas / NYC / Hazmat explosivos)
-  console.log('   ➤ seedExclusions');
-  await seedExclusions(dataSource);
+    console.log(`✅ Guideline categories: ${catInserted} inserted, ${catSkipped} skipped.`);
 
-  // 6. Filtros guardados para el query panel
-  console.log('   ➤ seedQueryPresets');
-  await seedQueryPresets(dataSource);
+    const allCategories = await manager.find(GuidelineCategoryEntity);
+    const catByName = new Map<string, GuidelineCategoryEntity>();
+    allCategories.forEach((c) => catByName.set(c.name, c));
 
-  console.log('✅ [GuidelinesSeed] Guidelines sembrados correctamente.');
-}
+    // Seed fields
+    let fieldInserted = 0;
+    let fieldSkipped = 0;
+
+    for (const raw of RAW_GUIDELINE_FIELDS) {
+      const category = catByName.get(raw.categoryName);
+      if (!category) {
+        console.warn(
+          `⚠️ GuidelineField "${raw.name}" skipped: category "${raw.categoryName}" not found.`,
+        );
+        continue;
+      }
+
+      const exists = await manager.findOne(GuidelineFieldEntity, {
+        where: { name: raw.name, category: { id: category.id } as any },
+      });
+
+      if (!exists) {
+        await manager.save(
+          manager.create(GuidelineFieldEntity, {
+            category,
+            name: raw.name,
+            type: raw.type,
+            possible_values: raw.possibleValues ? JSON.stringify(raw.possibleValues) : null,
+          }),
+        );
+        fieldInserted++;
+      } else {
+        fieldSkipped++;
+      }
+    }
+
+    console.log(`✅ Guideline fields: ${fieldInserted} inserted, ${fieldSkipped} skipped.`);
+  });
+
+  console.log('🌱 Guidelines seeding completed.');
+};
