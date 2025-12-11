@@ -1,66 +1,67 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
-import { StateRepository } from '../../../common/types/catalogs/state.repository';
-import { State } from '../../../core/models/state.model';
-import { StateEntity } from '../../database/entities/state.entity';
-import { StateMapper } from '../../mappers/catalogs/state.mapper';
+import { LineOfBusinessRepository } from 'src/common/types/catalogs/line-of-business.repository';
 import { FindOptions } from 'src/common/types/find-options';
+import { LineOfBusiness } from 'src/core/models/line-of-business.model';
+import { LineOfBusinessEntity } from 'src/infrastructure/database/entities/line-of-business.entity';
+import { LineOfBusinessMapper } from 'src/infrastructure/mappers/catalogs/line-of-business.mapper';
 
 @Injectable()
-export class StateRepositoryImpl implements StateRepository {
+export class LineOfBusinessRepositoryImpl implements LineOfBusinessRepository {
   constructor(
-    @InjectRepository(StateEntity)
-    private repo: Repository<StateEntity>,
+    @InjectRepository(LineOfBusinessEntity)
+    private readonly repo: Repository<LineOfBusinessEntity>,
   ) {}
 
-  async findAll(options: FindOptions = {}): Promise<{ data: State[]; total: number }> {
+  async findAll(options: FindOptions = {}): Promise<{ data: LineOfBusiness[]; total: number }> {
     const page = options.page && options.page > 0 ? options.page : 1;
     const limit = options.limit && options.limit > 0 ? options.limit : 10;
     const offset = (page - 1) * limit;
     const search = options.search?.trim();
 
-    const baseWhere: FindOptionsWhere<State>[] = [
+    const where: FindOptionsWhere<LineOfBusinessEntity>[] = [
       { deletedAt: IsNull(), ...(search ? { name: ILike(`%${search}%`) } : {}) },
     ];
 
     if (search) {
-      baseWhere.push({ deletedAt: IsNull(), code: ILike(`%${search}%`) });
+      where.push({ deletedAt: IsNull(), code: ILike(`%${search}%`) });
     }
 
     const [entities, total] = await this.repo.findAndCount({
-      where: baseWhere,
+      where,
       skip: offset,
       take: limit,
       order: { createdAt: 'DESC' },
     });
 
     return {
-      data: entities.map(StateMapper.toDomain),
+      data: entities.map(LineOfBusinessMapper.toDomain),
       total,
     };
   }
 
-  async findById(id: string): Promise<State | null> {
+  async findById(id: string): Promise<LineOfBusiness | null> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
-    return entity ? StateMapper.toDomain(entity) : null;
+    return entity ? LineOfBusinessMapper.toDomain(entity) : null;
   }
 
-  async create(data: Partial<State>): Promise<State> {
+  async create(data: Partial<LineOfBusiness>): Promise<LineOfBusiness> {
     try {
-      const entity = StateMapper.toEntity(data);
+      const entity = LineOfBusinessMapper.toEntity(data);
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return LineOfBusinessMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      this.handleUniqueConstraint(error, 'Line of business code already exists');
       throw error;
     }
   }
 
-  async update(id: string, data: Partial<State>): Promise<State> {
+  async update(id: string, data: Partial<LineOfBusiness>): Promise<LineOfBusiness> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
+
     if (!entity) {
-      throw new NotFoundException(`State with id ${id} not found`);
+      throw new NotFoundException(`Line of business with id ${id} not found`);
     }
 
     if (data.code !== undefined) {
@@ -73,9 +74,9 @@ export class StateRepositoryImpl implements StateRepository {
 
     try {
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return LineOfBusinessMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      this.handleUniqueConstraint(error, 'Line of business code already exists');
       throw error;
     }
   }
@@ -83,7 +84,7 @@ export class StateRepositoryImpl implements StateRepository {
   async softDelete(id: string): Promise<void> {
     const result = await this.repo.softDelete(id);
     if (!result.affected) {
-      throw new NotFoundException(`State with id ${id} not found`);
+      throw new NotFoundException(`Line of business with id ${id} not found`);
     }
   }
 

@@ -17,7 +17,7 @@ export class CoverageEntity {
 
   @ManyToOne(() => LineOfBusinessEntity, (lob) => lob.coverages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'lob_id' })
-  lob: LineOfBusinessEntity;
+  lineOfBusiness: LineOfBusinessEntity;
 
   @Column({ length: 50 })
   code: string;

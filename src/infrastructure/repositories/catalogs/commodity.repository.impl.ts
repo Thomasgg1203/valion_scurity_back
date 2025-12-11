@@ -1,81 +1,78 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
-import { StateRepository } from '../../../common/types/catalogs/state.repository';
-import { State } from '../../../core/models/state.model';
-import { StateEntity } from '../../database/entities/state.entity';
-import { StateMapper } from '../../mappers/catalogs/state.mapper';
+import { CommodityRepository } from 'src/common/types/catalogs/commodity.repository';
 import { FindOptions } from 'src/common/types/find-options';
+import { Commodity } from 'src/core/models/commodity.model';
+import { CommodityEntity } from 'src/infrastructure/database/entities/commodity.entity';
+import { CommodityMapper } from 'src/infrastructure/mappers/catalogs/commodity.mapper';
 
 @Injectable()
-export class StateRepositoryImpl implements StateRepository {
+export class CommodityRepositoryImpl implements CommodityRepository {
   constructor(
-    @InjectRepository(StateEntity)
-    private repo: Repository<StateEntity>,
+    @InjectRepository(CommodityEntity)
+    private readonly repo: Repository<CommodityEntity>,
   ) {}
 
-  async findAll(options: FindOptions = {}): Promise<{ data: State[]; total: number }> {
+  async findAll(options: FindOptions = {}): Promise<{ data: Commodity[]; total: number }> {
     const page = options.page && options.page > 0 ? options.page : 1;
     const limit = options.limit && options.limit > 0 ? options.limit : 10;
     const offset = (page - 1) * limit;
     const search = options.search?.trim();
 
-    const baseWhere: FindOptionsWhere<State>[] = [
+    const where: FindOptionsWhere<CommodityEntity>[] = [
       { deletedAt: IsNull(), ...(search ? { name: ILike(`%${search}%`) } : {}) },
     ];
 
-    if (search) {
-      baseWhere.push({ deletedAt: IsNull(), code: ILike(`%${search}%`) });
-    }
-
     const [entities, total] = await this.repo.findAndCount({
-      where: baseWhere,
+      where,
       skip: offset,
       take: limit,
       order: { createdAt: 'DESC' },
     });
 
     return {
-      data: entities.map(StateMapper.toDomain),
+      data: entities.map(CommodityMapper.toDomain),
       total,
     };
   }
 
-  async findById(id: string): Promise<State | null> {
+  async findById(id: string): Promise<Commodity | null> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
-    return entity ? StateMapper.toDomain(entity) : null;
+    return entity ? CommodityMapper.toDomain(entity) : null;
   }
 
-  async create(data: Partial<State>): Promise<State> {
+  async create(data: Partial<Commodity>): Promise<Commodity> {
     try {
-      const entity = StateMapper.toEntity(data);
+      const entity = CommodityMapper.toEntity(data);
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return CommodityMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      this.handleUniqueConstraint(error, 'Commodity name already exists');
       throw error;
     }
   }
 
-  async update(id: string, data: Partial<State>): Promise<State> {
+  async update(id: string, data: Partial<Commodity>): Promise<Commodity> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
-    if (!entity) {
-      throw new NotFoundException(`State with id ${id} not found`);
-    }
 
-    if (data.code !== undefined) {
-      entity.code = data.code;
+    if (!entity) {
+      throw new NotFoundException(`Commodity with id ${id} not found`);
     }
 
     if (data.name !== undefined) {
       entity.name = data.name;
     }
 
+    if (data.description !== undefined) {
+      entity.description = data.description;
+    }
+
     try {
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return CommodityMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      this.handleUniqueConstraint(error, 'Commodity name already exists');
       throw error;
     }
   }
@@ -83,7 +80,7 @@ export class StateRepositoryImpl implements StateRepository {
   async softDelete(id: string): Promise<void> {
     const result = await this.repo.softDelete(id);
     if (!result.affected) {
-      throw new NotFoundException(`State with id ${id} not found`);
+      throw new NotFoundException(`Commodity with id ${id} not found`);
     }
   }
 
