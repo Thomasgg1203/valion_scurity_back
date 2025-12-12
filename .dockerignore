@@ -6,3 +6,6 @@ docker-compose.yml
 .env
 .git
 .gitignore
+.vscode
+.idea
+README.md
