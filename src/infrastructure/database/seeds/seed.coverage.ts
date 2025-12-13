@@ -126,7 +126,7 @@ export const seedCoverages = async (dataSource: DataSource) => {
             code: cov.code,
             name: cov.name,
             description: cov.description,
-            lob,
+            lineOfBusiness: lob,
             createdAt: new Date(),
           }),
         );

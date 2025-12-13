@@ -30,6 +30,6 @@ export class LineOfBusinessEntity {
   deletedAt?: Date;
 
   // Relation with coverage
-  @OneToMany(() => CoverageEntity, (coverage) => coverage.lob)
+  @OneToMany(() => CoverageEntity, (coverage) => coverage.lineOfBusiness)
   coverages: CoverageEntity[];
 }

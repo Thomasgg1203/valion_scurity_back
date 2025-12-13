@@ -1,67 +1,68 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
-import { StateRepository } from '../../../common/types/catalogs/state.repository';
-import { State } from '../../../core/models/state.model';
-import { StateEntity } from '../../database/entities/state.entity';
-import { StateMapper } from '../../mappers/catalogs/state.mapper';
+import { LimitUnitRepository } from 'src/common/types/catalogs/limit-unit.repository';
 import { FindOptions } from 'src/common/types/find-options';
+import { LimitUnit } from 'src/core/models/limit-unit.model';
+import { LimitUnitEntity } from 'src/infrastructure/database/entities/limit-unit.entity';
+import { LimitUnitMapper } from 'src/infrastructure/mappers/catalogs/limit-unit.mapper';
 import { handleUniqueConstraint } from 'src/common/utils/unique-constraint.util';
 
 @Injectable()
-export class StateRepositoryImpl implements StateRepository {
+export class LimitUnitRepositoryImpl implements LimitUnitRepository {
   constructor(
-    @InjectRepository(StateEntity)
-    private repo: Repository<StateEntity>,
+    @InjectRepository(LimitUnitEntity)
+    private readonly repo: Repository<LimitUnitEntity>,
   ) {}
 
-  async findAll(options: FindOptions = {}): Promise<{ data: State[]; total: number }> {
+  async findAll(options: FindOptions = {}): Promise<{ data: LimitUnit[]; total: number }> {
     const page = options.page && options.page > 0 ? options.page : 1;
     const limit = options.limit && options.limit > 0 ? options.limit : 10;
     const offset = (page - 1) * limit;
     const search = options.search?.trim();
 
-    const baseWhere: FindOptionsWhere<State>[] = [
+    const where: FindOptionsWhere<LimitUnitEntity>[] = [
       { deletedAt: IsNull(), ...(search ? { name: ILike(`%${search}%`) } : {}) },
     ];
 
     if (search) {
-      baseWhere.push({ deletedAt: IsNull(), code: ILike(`%${search}%`) });
+      where.push({ deletedAt: IsNull(), code: ILike(`%${search}%`) });
     }
 
     const [entities, total] = await this.repo.findAndCount({
-      where: baseWhere,
+      where,
       skip: offset,
       take: limit,
       order: { createdAt: 'DESC' },
     });
 
     return {
-      data: entities.map(StateMapper.toDomain),
+      data: entities.map(LimitUnitMapper.toDomain),
       total,
     };
   }
 
-  async findById(id: string): Promise<State | null> {
+  async findById(id: string): Promise<LimitUnit | null> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
-    return entity ? StateMapper.toDomain(entity) : null;
+    return entity ? LimitUnitMapper.toDomain(entity) : null;
   }
 
-  async create(data: Partial<State>): Promise<State> {
+  async create(data: Partial<LimitUnit>): Promise<LimitUnit> {
     try {
-      const entity = StateMapper.toEntity(data);
+      const entity = LimitUnitMapper.toEntity(data);
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return LimitUnitMapper.toDomain(saved);
     } catch (error) {
-      handleUniqueConstraint(error, 'State code already exists');
+      handleUniqueConstraint(error, 'Limit unit code already exists');
       throw error;
     }
   }
 
-  async update(id: string, data: Partial<State>): Promise<State> {
+  async update(id: string, data: Partial<LimitUnit>): Promise<LimitUnit> {
     const entity = await this.repo.findOne({ where: { id, deletedAt: IsNull() } });
+
     if (!entity) {
-      throw new NotFoundException(`State with id ${id} not found`);
+      throw new NotFoundException(`Limit unit with id ${id} not found`);
     }
 
     if (data.code !== undefined) {
@@ -74,9 +75,9 @@ export class StateRepositoryImpl implements StateRepository {
 
     try {
       const saved = await this.repo.save(entity);
-      return StateMapper.toDomain(saved);
+      return LimitUnitMapper.toDomain(saved);
     } catch (error) {
-      handleUniqueConstraint(error, 'State code already exists');
+      handleUniqueConstraint(error, 'Limit unit code already exists');
       throw error;
     }
   }
@@ -84,7 +85,7 @@ export class StateRepositoryImpl implements StateRepository {
   async softDelete(id: string): Promise<void> {
     const result = await this.repo.softDelete(id);
     if (!result.affected) {
-      throw new NotFoundException(`State with id ${id} not found`);
+      throw new NotFoundException(`Limit unit with id ${id} not found`);
     }
   }
 }

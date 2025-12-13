@@ -3,15 +3,15 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class FindOptionsDto {
   @ApiPropertyOptional({
-    description: 'Number of records to skip (pagination offset).',
-    example: '0',
+    description: 'Page number for pagination (starts at 1).',
+    example: '1',
   })
   @IsOptional()
   @IsNumberString()
   page?: string;
 
   @ApiPropertyOptional({
-    description: 'Number of records to take (pagination limit).',
+    description: 'Number of records per page (pagination limit).',
     example: '10',
   })
   @IsOptional()
