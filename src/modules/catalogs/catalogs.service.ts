@@ -9,11 +9,11 @@ import { CreateCoverageDto } from './dto/create-coverage.dto';
 import { UpdateCoverageDto } from './dto/update-coverage.dto';
 import { CreateLimitUnitDto } from './dto/create-limit-unit.dto';
 import { UpdateLimitUnitDto } from './dto/update-limit-unit.dto';
-import type { StateRepository } from '../../common/types/catalogs/state.repository';
 import type { CommodityRepository } from 'src/common/types/catalogs/commodity.repository';
 import type { LineOfBusinessRepository } from 'src/common/types/catalogs/line-of-business.repository';
 import type { CoverageRepository } from 'src/common/types/catalogs/coverage.repository';
 import type { LimitUnitRepository } from 'src/common/types/catalogs/limit-unit.repository';
+import type { StateRepository } from 'src/common/types/catalogs/state.repository';
 import { FindOptions } from 'src/common/types/find-options';
 
 @Injectable()
