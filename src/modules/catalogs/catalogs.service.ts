@@ -220,7 +220,7 @@ export class CatalogsService {
 
   private buildMeta(total: number, page?: number, limit?: number) {
     const currentPage = page && page > 0 ? page : 1;
-    const perPage = limit && limit > 0 ? limit : total;
+    const perPage = limit && limit > 0 ? limit : 10; // default to repository pagination size
     return {
       total,
       page: currentPage,
