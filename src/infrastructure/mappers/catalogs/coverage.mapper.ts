@@ -10,7 +10,11 @@ export class CoverageMapper {
       ('lineOfBusinessId' in entity &&
       typeof (entity as { lineOfBusinessId?: string }).lineOfBusinessId === 'string'
         ? (entity as { lineOfBusinessId: string }).lineOfBusinessId
-        : '');
+        : undefined);
+
+    if (!lineOfBusinessId) {
+      throw new Error('CoverageEntity missing lineOfBusinessId');
+    }
 
     return {
       id: entity.id,
