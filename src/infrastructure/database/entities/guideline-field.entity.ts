@@ -15,7 +15,7 @@ export class GuidelineFieldEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => GuidelineCategoryEntity, (cat) => cat.fields, { onDelete: 'CASCADE' })
+  @ManyToOne(() => GuidelineCategoryEntity)
   @JoinColumn({ name: 'category_id' })
   category: GuidelineCategoryEntity;
 
