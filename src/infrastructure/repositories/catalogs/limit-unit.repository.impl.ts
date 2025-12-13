@@ -1,11 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 import { LimitUnitRepository } from 'src/common/types/catalogs/limit-unit.repository';
 import { FindOptions } from 'src/common/types/find-options';
 import { LimitUnit } from 'src/core/models/limit-unit.model';
 import { LimitUnitEntity } from 'src/infrastructure/database/entities/limit-unit.entity';
 import { LimitUnitMapper } from 'src/infrastructure/mappers/catalogs/limit-unit.mapper';
+import { handleUniqueConstraint } from 'src/common/utils/unique-constraint.util';
 
 @Injectable()
 export class LimitUnitRepositoryImpl implements LimitUnitRepository {
@@ -52,7 +53,7 @@ export class LimitUnitRepositoryImpl implements LimitUnitRepository {
       const saved = await this.repo.save(entity);
       return LimitUnitMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Limit unit code already exists');
+      handleUniqueConstraint(error, 'Limit unit code already exists');
       throw error;
     }
   }
@@ -76,7 +77,7 @@ export class LimitUnitRepositoryImpl implements LimitUnitRepository {
       const saved = await this.repo.save(entity);
       return LimitUnitMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Limit unit code already exists');
+      handleUniqueConstraint(error, 'Limit unit code already exists');
       throw error;
     }
   }
@@ -86,12 +87,5 @@ export class LimitUnitRepositoryImpl implements LimitUnitRepository {
     if (!result.affected) {
       throw new NotFoundException(`Limit unit with id ${id} not found`);
     }
-  }
-
-  private handleUniqueConstraint(error: unknown, message: string) {
-    if (!(error instanceof QueryFailedError)) return;
-    const driverError = (error as QueryFailedError & { driverError?: { code?: string } })
-      .driverError;
-    if (driverError?.code === '23505') throw new ConflictException(message);
   }
 }

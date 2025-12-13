@@ -1,11 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 import { StateRepository } from '../../../common/types/catalogs/state.repository';
 import { State } from '../../../core/models/state.model';
 import { StateEntity } from '../../database/entities/state.entity';
 import { StateMapper } from '../../mappers/catalogs/state.mapper';
 import { FindOptions } from 'src/common/types/find-options';
+import { handleUniqueConstraint } from 'src/common/utils/unique-constraint.util';
 
 @Injectable()
 export class StateRepositoryImpl implements StateRepository {
@@ -52,7 +53,7 @@ export class StateRepositoryImpl implements StateRepository {
       const saved = await this.repo.save(entity);
       return StateMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      handleUniqueConstraint(error, 'State code already exists');
       throw error;
     }
   }
@@ -75,7 +76,7 @@ export class StateRepositoryImpl implements StateRepository {
       const saved = await this.repo.save(entity);
       return StateMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'State code already exists');
+      handleUniqueConstraint(error, 'State code already exists');
       throw error;
     }
   }
@@ -85,12 +86,5 @@ export class StateRepositoryImpl implements StateRepository {
     if (!result.affected) {
       throw new NotFoundException(`State with id ${id} not found`);
     }
-  }
-
-  private handleUniqueConstraint(error: unknown, message: string) {
-    if (!(error instanceof QueryFailedError)) return;
-    const driverError = (error as QueryFailedError & { driverError?: { code?: string } })
-      .driverError;
-    if (driverError?.code === '23505') throw new ConflictException(message);
   }
 }

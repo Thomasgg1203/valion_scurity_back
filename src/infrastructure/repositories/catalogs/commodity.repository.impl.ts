@@ -1,11 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 import { CommodityRepository } from 'src/common/types/catalogs/commodity.repository';
 import { FindOptions } from 'src/common/types/find-options';
 import { Commodity } from 'src/core/models/commodity.model';
 import { CommodityEntity } from 'src/infrastructure/database/entities/commodity.entity';
 import { CommodityMapper } from 'src/infrastructure/mappers/catalogs/commodity.mapper';
+import { handleUniqueConstraint } from 'src/common/utils/unique-constraint.util';
 
 @Injectable()
 export class CommodityRepositoryImpl implements CommodityRepository {
@@ -48,7 +49,7 @@ export class CommodityRepositoryImpl implements CommodityRepository {
       const saved = await this.repo.save(entity);
       return CommodityMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Commodity name already exists');
+      handleUniqueConstraint(error, 'Commodity name already exists');
       throw error;
     }
   }
@@ -72,7 +73,7 @@ export class CommodityRepositoryImpl implements CommodityRepository {
       const saved = await this.repo.save(entity);
       return CommodityMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Commodity name already exists');
+      handleUniqueConstraint(error, 'Commodity name already exists');
       throw error;
     }
   }
@@ -82,12 +83,5 @@ export class CommodityRepositoryImpl implements CommodityRepository {
     if (!result.affected) {
       throw new NotFoundException(`Commodity with id ${id} not found`);
     }
-  }
-
-  private handleUniqueConstraint(error: unknown, message: string) {
-    if (!(error instanceof QueryFailedError)) return;
-    const driverError = (error as QueryFailedError & { driverError?: { code?: string } })
-      .driverError;
-    if (driverError?.code === '23505') throw new ConflictException(message);
   }
 }

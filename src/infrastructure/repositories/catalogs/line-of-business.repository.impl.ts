@@ -1,11 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, ILike, IsNull, QueryFailedError, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 import { LineOfBusinessRepository } from 'src/common/types/catalogs/line-of-business.repository';
 import { FindOptions } from 'src/common/types/find-options';
 import { LineOfBusiness } from 'src/core/models/line-of-business.model';
 import { LineOfBusinessEntity } from 'src/infrastructure/database/entities/line-of-business.entity';
 import { LineOfBusinessMapper } from 'src/infrastructure/mappers/catalogs/line-of-business.mapper';
+import { handleUniqueConstraint } from 'src/common/utils/unique-constraint.util';
 
 @Injectable()
 export class LineOfBusinessRepositoryImpl implements LineOfBusinessRepository {
@@ -52,7 +53,7 @@ export class LineOfBusinessRepositoryImpl implements LineOfBusinessRepository {
       const saved = await this.repo.save(entity);
       return LineOfBusinessMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Line of business code already exists');
+      handleUniqueConstraint(error, 'Line of business code already exists');
       throw error;
     }
   }
@@ -76,7 +77,7 @@ export class LineOfBusinessRepositoryImpl implements LineOfBusinessRepository {
       const saved = await this.repo.save(entity);
       return LineOfBusinessMapper.toDomain(saved);
     } catch (error) {
-      this.handleUniqueConstraint(error, 'Line of business code already exists');
+      handleUniqueConstraint(error, 'Line of business code already exists');
       throw error;
     }
   }
@@ -86,12 +87,5 @@ export class LineOfBusinessRepositoryImpl implements LineOfBusinessRepository {
     if (!result.affected) {
       throw new NotFoundException(`Line of business with id ${id} not found`);
     }
-  }
-
-  private handleUniqueConstraint(error: unknown, message: string) {
-    if (!(error instanceof QueryFailedError)) return;
-    const driverError = (error as QueryFailedError & { driverError?: { code?: string } })
-      .driverError;
-    if (driverError?.code === '23505') throw new ConflictException(message);
   }
 }
